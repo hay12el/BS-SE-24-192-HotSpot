@@ -1,0 +1,34 @@
+@import url('https://fonts.googleapis.com/css?family=Josefin+Sans:100,300,400,600,700'); 
+@import url('https://fonts.googleapis.com/css?family=Indie+Flower');
+
+.loader {
+  position: fixed;
+  background-color: rgba(1, 1, 1, 0.079);
+  top: 250px;
+  z-index: 1;
+}
+.svg-calLoader {
+   width: 230px; height: 230px;
+  transform-origin: 115px 115px;
+  animation: 1.4s linear infinite loader-spin;
+}
+
+.cal-loader__plane { fill: #04a4fa; }
+.cal-loader__path { stroke: #04a4fa; animation: 1.4s ease-in-out infinite loader-path; }
+
+@keyframes loader-spin {
+  to{
+    transform: rotate(360deg);
+  }
+}
+@keyframes loader-path {
+  0%{
+    stroke-dasharray:  0, 580, 0, 0, 0, 0, 0, 0, 0;
+  }
+  50%{
+    stroke-dasharray: 0, 450, 10, 30, 10, 30, 10, 30, 10;
+  }
+  100%{
+    stroke-dasharray: 0, 580, 0, 0, 0, 0, 0, 0, 0;
+  }
+}

@@ -1,0 +1,46 @@
+.container {
+  display: flex;
+  /* background: linear-gradient(0.25turn, RGB(41, 202, 220), RGB(1, 162, 215)); */
+  background-color:none;
+  justify-content: center;
+  height: 80px;
+  position: absolute;
+  width: 100%;
+  top: 0;
+  z-index: 10;
+}
+
+.navContainer {
+  width: 100%;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 40px 30px;
+}
+
+.logo {
+  cursor: pointer;
+  height: 80px;
+  mix-blend-mode: multiply;
+}
+
+.btn {
+  margin-right: 20px;
+  cursor: pointer;
+  padding: 5px 10px;
+  color: rgb(255, 255, 255);
+  font-weight: bold;
+  font-size: 14px;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  border-radius: 30px;
+  border: 1px solid white;
+  height: 35px;
+  transition: 0.3s;
+}
+
+.btn:hover {
+  background-color: white;
+  color: #00a1d6;
+}
