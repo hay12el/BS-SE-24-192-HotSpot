@@ -12,6 +12,7 @@ import {
   getDocs,
   onSnapshot,
   query,
+  setDoc,
   where,
 } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
@@ -72,8 +73,8 @@ function AddPhoto() {
         },
         () => {
           getDownloadURL(uploadTask.snapshot.ref).then((downloadUrl) => {
-            addDoc(
-              collection(db, `/users/${userID}/students/${studentid}/videos`),
+            setDoc(
+              doc(db, `/users/${userID}/students/${studentid}/videos`, newUUID),
               {
                 videoUri: downloadUrl,
                 allClickCount: 0,
@@ -82,6 +83,16 @@ function AddPhoto() {
                 id: newUUID,
               }
             );
+            // addDoc(
+            //   collection(db, `/users/${userID}/students/${studentid}/videos`),
+            //   {
+            //     videoUri: downloadUrl,
+            //     allClickCount: 0,
+            //     title: name,
+            //     outsideClickCount: 0,
+            //     id: newUUID,
+            //   }
+            // );
           });
           setTimeout(() => {
             navigate(`/mygallery/${studentid}`);
@@ -116,8 +127,8 @@ function AddPhoto() {
         },
         () => {
           getDownloadURL(uploadTask.snapshot.ref).then((downloadUrl) => {
-            addDoc(
-              collection(db, `/users/${userID}/students/${studentid}/photos`),
+            setDoc(
+              doc(db, `/users/${userID}/students/${studentid}/photos`, newUUID),
               {
                 fileUri: downloadUrl,
                 title: name,
@@ -126,6 +137,16 @@ function AddPhoto() {
                 id: newUUID,
               }
             );
+            // addDoc(
+            //   collection(db, `/users/${userID}/students/${studentid}/photos`),
+            //   {
+            //     fileUri: downloadUrl,
+            //     title: name,
+            //     allClickCount: 0,
+            //     outsideClickCount: 0,
+            //     id: newUUID,
+            //   }
+            // );
           });
           setTimeout(() => {
             navigate(`/mygallery/${studentid}`);

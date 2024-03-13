@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { CheckAuth } from "../../hooks/hooks";
 import { useAuth } from "../../context/AuthContext";
 import { db } from "../../firebase";
-import './MyStudents.css'
+import "./MyStudents.css";
 import {
   collection,
   doc,
@@ -32,10 +32,10 @@ function MyStudents() {
 
     //subcollection
     const studentQuery = query(collection(db, `users/${userID}/students`));
-    const students = await getDocs(studentQuery);
+    // const students = await getDocs(studentQuery);
     getDocs(studentQuery).then((students) => {
       const theStudents = students.docs.map((student) => student.data());
-      console.log(theStudents);
+
       setStudents(theStudents);
     });
   };
@@ -45,16 +45,21 @@ function MyStudents() {
         height: "100vh",
         width: "100%",
         padding: "100px",
-        direction: "rtl"
+        direction: "rtl",
       }}
     >
       <div>
-        <h1 style={{marginBottom: "50px"}}>הסטודנטים שלי</h1>
+        <h1 style={{ marginBottom: "50px" }}>הסטודנטים שלי</h1>
+        <div className="buttons">
+          <button id="button" onClick={() => navigate(`/newstudent`)}>
+            הוספת סטודנט חדש
+          </button>
+        </div>
         <div className="students">
-          {students.map((s) => {
+          {students.map((s, i) => {
             return (
-              <Link to={`/myGallery/${s.id}`} className="student">
-                <img src={s.avatar} alt="" className="avatar"/>
+              <Link to={`/myGallery/${s.id}`} className="student" key={i}>
+                <img src={s.avatar} alt="" className="avatar" />
                 <h3>{s.name}</h3>
               </Link>
             );

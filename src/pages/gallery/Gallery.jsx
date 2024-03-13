@@ -50,8 +50,6 @@ function Gallery() {
 
     const thePhotos = thePhotosDocs.docs.map((p) => p.data());
     setPhotos(thePhotos);
-
-      console.log(photos);
   };
   return (
     <div
@@ -73,14 +71,36 @@ function Gallery() {
         <h1>סרטונים</h1>
 
         <div className="gallaryContainer">
-          {videos.map((v) => {
+          {videos.map((v, i) => {
             return (
-              <Link className="gallery" to={`/editvideo/${v.id}/${studentID}`}>
+              <div className="vv" key={i}>
                 <div className="gallery">
-                  <video src={v.videoUri} style={{ height: "100%" }}></video>
+                  <video
+                    src={v.videoUri}
+                    style={{
+                      height: "100%",
+                      borderTopLeftRadius: "15px",
+                      borderTopRightRadius: "15px",
+                    }}
+                  ></video>
                   <div className="desc">{v.title}</div>
                 </div>
-              </Link>
+
+                <div className="buttons buttons_under">
+                  <button
+                    id="button"
+                    onClick={() => navigate(`/editvideo/${v.id}/${studentID}`)}
+                  >
+                    ערוך נקודות חמות
+                  </button>
+                  <button
+                    id="button"
+                    onClick={() => navigate(`/ViewVideo/${v.id}/${studentID}`)}
+                  >
+                    צפה בסרטון
+                  </button>
+                </div>
+              </div>
             );
           })}
         </div>
@@ -88,9 +108,9 @@ function Gallery() {
       <div style={{ marginBottom: "100px" }}>
         <h1>תמונות</h1>
         <div className="gallaryContainer">
-          {photos.map((p) => {
+          {photos.map((p, i) => {
             return (
-              <Link className="gallery" to={`/editphoto/${p.id}/${studentID}`}>
+              <Link className="gallery" to={`/editphoto/${p.id}/${studentID}`} key={i}>
                 <div className="gallery">
                   <img src={p.fileUri} alt="" />
                   <div className="desc">{p.title}</div>

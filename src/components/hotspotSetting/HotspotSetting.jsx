@@ -1,6 +1,19 @@
 import React, { useState, useRef } from "react";
 import { ChromePicker } from "react-color";
 import "./HotspotSetting.css";
+import { useAuth } from "../../context/AuthContext";
+import { db, storage } from "../../firebase";
+import {
+  addDoc,
+  collection,
+  doc,
+  onSnapshot,
+  query,
+  setDoc,
+  where,
+} from "firebase/firestore";
+import { v4 as uuidv4 } from "uuid";
+import { useParams } from "react-router-dom";
 
 function HotspotSetting({
   capturedImage,
@@ -11,13 +24,15 @@ function HotspotSetting({
   pausedTime,
   totalTime,
   setVerticalLines,
-  verticalLines
+  verticalLines,
 }) {
   const [selectedColor, setSelectedColor] = useState("#ffffff");
   const [name, setName] = useState("");
   const [hotspotColor, setHotspotColor] = useState("red");
   const recordedChunks = useRef([]);
   const [squares, setSquares] = useState([]);
+  const { currentUser } = useAuth();
+  const params = useParams();
 
   const handleColorChange = (color) => {
     setSelectedColor(color.hex);
@@ -28,13 +43,55 @@ function HotspotSetting({
     setName(e.target.value);
   };
 
-  const handleSubmit = () => {
-    // Implement your logic to handle the submitted data (color and name)
-    if (name == "") {
-      alert("הכנס את שם הנקודה");
-    } else {
-      alert("הנקודה החמה נוספה בהצלחה");
-      handleClose();
+  const handleSubmit = async () => {
+    try {
+      // Implement your logic to handle the submitted data (color and name)
+      if (name == "") {
+        alert("הכנס את שם הנקודה");
+      } else {
+        var userID = currentUser.uid;
+        const { photoid, studentid } = params;
+        console.log(photoid, studentid);
+        const newUUID = uuidv4();
+        await setDoc(
+          doc(
+            db,
+            `/users/${userID}/students/${studentid}/videos/${photoid}/hotspots`,
+            newUUID
+          ),
+          {
+            // audioUri: it.audioUri, //
+            color: selectedColor,
+            // offsetX: it.offsetX, //
+            // offsetY: it.offsetY, //
+            itemClickCount: 0,
+            points: recordedChunks, //
+            timestamp: pausedTime,
+            title: name,
+            id: newUUID,
+          }
+        );
+        // collection(
+        //   db,
+        //   `/users/${userID}/students/${studentid}/videos/${photoid}/hotspots`
+        // ),
+        // {
+        //   // audioUri: it.audioUri, //
+        //   color: selectedColor,
+        //   // offsetX: it.offsetX, //
+        //   // offsetY: it.offsetY, //
+        //   itemClickCount: 0,
+        //   points: recordedChunks, //
+        //   timestamp: pausedTime,
+        //   title: name,
+        // }
+        // );
+        alert("הנקודה החמה נוספה בהצלחה");
+
+        handleClose();
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -51,7 +108,7 @@ function HotspotSetting({
     setName("");
     setHotspot(false);
     setCapturedImage(null);
-    setVerticalLines([...verticalLines, (pausedTime / totalTime) * 610])
+    setVerticalLines([...verticalLines, (pausedTime / totalTime) * 610]);
   };
 
   const redrawSquares = (context) => {
@@ -73,7 +130,7 @@ function HotspotSetting({
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
 
-    recordedChunks.current.push({ x, y });
+    recordedChunks.current.push({ x: x, y: y });
 
     // // Draw the square on the canvas
     context.globalAlpha = 0.3;

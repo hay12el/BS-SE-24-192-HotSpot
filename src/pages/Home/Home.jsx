@@ -23,10 +23,11 @@ function Home() {
         </div>
       </div>
 
-      <button id="button" onClick={() => navigate("/myStudents")}>
-        בחר סטודנט
-      </button>
-      {/* <VideoComponent /> */}
+      <div className="buttons">
+        <button id="button" onClick={() => navigate("/myStudents")}>
+          בחר סטודנט
+        </button>
+      </div>
     </>
   );
 }

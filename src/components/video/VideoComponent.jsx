@@ -1,9 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useDropzone } from "react-dropzone";
 import HotspotSetting from "../hotspotSetting/HotspotSetting";
 import "./VideoComponent.css";
 
-const VideoComponent = ({videoUrl}) => {
+const VideoComponent = ({ videoUrl }) => {
   // const [videoUrl, setVideoUrl] = useState(null);
   const [capturedImage, setCapturedImage] = useState(null);
   const [hotspot, setHotspot] = useState(false);
@@ -14,10 +13,9 @@ const VideoComponent = ({videoUrl}) => {
   const [verticalLines, setVerticalLines] = useState([]);
   const lineCanvasRef = useRef(null);
 
-    useEffect(()=> {
-      console.log(videoUrl);
-      drawVerticalLines()
-    }, [verticalLines])
+  useEffect(() => {
+    drawVerticalLines();
+  }, [verticalLines]);
 
   // const onDrop = (acceptedFiles) => {
   //   const file = acceptedFiles[0];
@@ -44,27 +42,31 @@ const VideoComponent = ({videoUrl}) => {
   };
 
   const handleCaptureImage = () => {
-    const videoElement = videoRef.current;
-    videoElement.pause();
-    setTotalTime(videoElement.duration);
-    setPausedTime(videoElement.currentTime);
-    const canvasElement = canvasRef.current;
-    setHotspot(true);
+    try {
+      const videoElement = videoRef.current;
+      videoElement.pause();
+      setTotalTime(videoElement.duration);
+      setPausedTime(videoElement.currentTime);
+      const canvasElement = canvasRef.current;
+      setHotspot(true);
 
-    canvasElement.width = 640;
-    canvasElement.height = 360;
+      canvasElement.width = 640;
+      canvasElement.height = 360;
 
-    const context = canvasElement.getContext("2d");
-    context.drawImage(
-      videoElement,
-      0,
-      0,
-      canvasElement.width,
-      canvasElement.height
-    );
+      const context = canvasElement.getContext("2d");
+      context.drawImage(
+        videoElement,
+        0,
+        0,
+        canvasElement.width,
+        canvasElement.height
+      );
 
-    const imageBlob = canvasElement.toDataURL("image/png");
-    setCapturedImage(imageBlob);
+      const imageBlob = canvasElement.toDataURL("image/png");
+      setCapturedImage(imageBlob);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const drawVerticalLines = () => {

@@ -11,6 +11,8 @@ import MyStudents from "../pages/MyStudents/MyStudents";
 import Error from "../pages/error/Error";
 import EditPhoto from "../pages/EditPhoto/EditPhoto";
 import EditVideo from "../pages/EditVideo/EditVideo";
+import NewStudent from "../pages/newStudent/NewStudent";
+import ViewVideo from "../pages/ViewVideo/ViewVideo";
 
 function MainRouter() {
   return (
@@ -24,6 +26,8 @@ function MainRouter() {
       <Route path="myStudents" element={<MyStudents />} />
       <Route path="editphoto/:photoid/:studentid" element={<EditPhoto />} />
       <Route path="editvideo/:photoid/:studentid" element={<EditVideo />} />
+      <Route path="newstudent" element={<NewStudent />} />
+      <Route path="viewvideo/:videoid/:studentid" element={<ViewVideo />} />
       <Route path="*" element={<Error />} />
     </Routes>
   );
