@@ -48,30 +48,35 @@ const Login = () => {
   return (
     <div className="containerBig">
       <div className="vv">
-        <div className="leftImg"></div>
+        <div className="logoo">
+          <div className="leftImg"></div>
+        </div>
+        
         <div className="inpC">
           <div className="upponLog">
             <p>התחברות</p>
           </div>
           <div className="inputBox">
             <input
+              className="input"
               type="email"
               // className="inp"
               id="email"
               onChange={handleChange}
               onKeyDown={handleClick}
+              placeholder="אימייל"
             />
-            <label>מייל</label>
           </div>
           <div className="inputBox">
             <input
+              className="input"
               type="password"
               // className="inp"
               id="password"
               onChange={handleChange}
               onKeyDown={handleClick}
+              placeholder="סיסמא"
             />
-            <label>סיסמא</label>
           </div>
           <button type="submit" className="confirmBtn" onClick={handleSubmit}>
             התחבר

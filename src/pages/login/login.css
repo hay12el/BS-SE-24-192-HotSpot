@@ -5,34 +5,62 @@
   align-items: center;
   height: 100vh;
   width: 100%;
-  background: linear-gradient(#adedff,#fbfbfb);
+  background-color: rgb(245, 238, 226)
 }
 
 .vv{
  display: flex;
- flex-direction: row;
+ flex-direction: column;
  width: 70%;
- height: 70%;
- box-shadow: 0px 0px 15px #8888889c;
- border-radius: 10px;
+ height: 90%;
+ 
 }
+.input{
+  text-align: right
+}
+.logoo{
+  
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 55%;
+  justify-content: center; 
+  align-items: center;
+  background-position: center;
+  background-color: rgb(245, 238, 226)
+  
+  
+ }
+
 
 .leftImg{
+  flex-direction: column;
+
   display: flex;
-  flex: 1;
-  background-image: url("https://cdn.pixabay.com/photo/2023/12/04/05/54/ferris-wheel-8428738_640.jpg");
-  background-size: cover;
-  border-radius: 10px 0px 0px 10px;
+  flex: 10;
+  background-image: url("C:\Users\aviga\OneDrive\שולחן העבודה\HotSpot\BS-SE-24-192-HotSpot\public\logo_1.png");
+  background-size: 250px 200px;
+  background-repeat: no-repeat;
+  background-position: center;
+
+  justify-content: center; /* Horizontally center the content */
+  align-items: center; /* Vertically center the content */
+  border-radius: 5px;
+  font-weight: 100;
+  width: 233px;
+  text-align: center;
+  font-family: Arial, Helvetica;
+  font-size: 20px;
 }
 
 .upponLog {
 	border-radius: 5px;
-	box-shadow: 0 0 1em 0.2em rgba(0, 0, 0, 0.082);
-	font-weight: 400;
+	font-weight: 100;
 	width: 233px;
 	text-align: center;
-	color: rgb(78, 140, 167);
-	background-color: rgba(158, 204, 244, 0.489);;
+  font-family: Arial, Helvetica;
+  font-size: 30px;
+	color: rgba(186, 130, 45, 0.929);
 }
 
 .inpC{
@@ -42,7 +70,7 @@
     flex: 1;
     justify-content: space-between;
     align-items: center;
-    background-color: rgb(255, 255, 255);
+    background-color: rgb(245, 238, 226);
     padding: 30px 20px;
     width: auto;
     border-radius: 0px 10px 10px 10px;
@@ -50,68 +78,68 @@
 }
 
 .inp::placeholder{
-    text-align: right;
+  text-align: right;
 }
 
 .confirmBtn{
-    height: 50px;
-    border: none;
-    padding: 10px 20px;
-    background-color: #0071c2;
-    cursor: pointer;
-    border-radius: 5px;
-}
-
-.inpC .inputBox {
-  position: relative;
-}
-
-.inpC .inputBox input {
-  width: 100%;
-  padding: 10px 0;
-  font-size: 16px;
-  color: rgb(116, 115, 115);
-  letter-spacing: 2px;
-  margin-bottom: 30px;
+  height: 50px;
   border: none;
-  border-bottom: 1px solid #fff;
-  outline: none;
-  background: transparent;
-}
-
-.inpC .inputBox label {
-  position: absolute;
-  top: 0;
-  right: 0;
-  letter-spacing: 2px;
-  padding: 10px 0;
-  font-size: 16px;
-  color: rgb(78, 140, 167);
-  pointer-events: none;
-  transition: .35s ease-in-out;
-}
-
-.inpC .inputBox input:focus ~ label,
-.inpC .inputBox input:valid > label {
-  top: -25px;
-  right: 0;
-  color: #03a9f4;
-  font-size: 12px;
-}
-
-.inpC input[type="submit"] {
-  background: transparent;
-  border: none;
-  outline: none;
-  color: rgb(72, 72, 72);
-  background: #03a9f4;
   padding: 10px 20px;
+  background-color: #0071c2;
   cursor: pointer;
   border-radius: 5px;
 }
 
+.inpC .inputBox {
+position: relative;
+}
+
+.inpC .inputBox input {
+width: 100%;
+padding: 10px 0;
+font-size: 20px;
+color: rgb(116, 115, 115);
+letter-spacing: 2px;
+margin-bottom: 30px;
+border: none;
+border-bottom: 1px solid #fff;
+outline: none;
+background: transparent;
+}
+
+.inpC .inputBox label {
+position: absolute;
+top: 0;
+right: 0;
+letter-spacing: 2px;
+padding: 10px 0;
+font-size: 16px;
+color: rgb(11, 12, 12);
+pointer-events: none;
+transition: .35s ease-in-out;
+}
+
+.inpC .inputBox input:focus ~ label,
+.inpC .inputBox input:valid > label {
+top: -25px;
+right: 0;
+color: rgba(186, 130, 45, 0.929);
+font-size: 12px;
+}
+
+.inpC input[type="submit"] {
+background: transparent;
+border: none;
+outline: none;
+color: rgb(72, 72, 72);
+background: #03a9f4;
+padding: 10px 20px;
+cursor: pointer;
+border-radius: 5px;
+}
+
 @media only screen and (max-width: 600px) {
-  .vv{
-    flex-direction: column; 
-   }
+.vv{
+  flex-direction: column; 
+ }
 }

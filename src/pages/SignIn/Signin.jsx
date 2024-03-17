@@ -120,8 +120,8 @@ const Signin = () => {
               id="userName"
               dir="ltr"
               onChange={handleCange}
+              placeholder="שם מלא"
             />
-            <label>שם מלא</label>
           </div>
 
           {errors.userName !== null && <p>{errors.userName}</p>}
@@ -131,8 +131,10 @@ const Signin = () => {
               name="email"
               id="email"
               onChange={handleCange}
+              placeholder="אימייל"
+
+
             />
-            <label>אימייל</label>
           </div>
 
           {errors.userName !== null && <p>{errors.userName}</p>}
@@ -142,8 +144,11 @@ const Signin = () => {
               name="classname"
               id="classname"
               onChange={handleCange}
+              placeholder="אימייל"
+
+              
             />
-            <label>שם הכיתה</label>
+          
           </div>
 
           <div className="inputBox">

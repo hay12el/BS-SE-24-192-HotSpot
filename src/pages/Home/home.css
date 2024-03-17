@@ -11,7 +11,34 @@
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  
 }
+
+.logo_1 {
+  display: flex;
+  flex-direction: column; 
+  /* justify-content: flex-end;  */
+  align-items:flex-end ; 
+  height: 32vh;
+  width: 190%;
+  /* justify-content: center;  */
+  align-items: center;
+  background-position: center;
+  background-color: rgba(255, 255, 255, 0.68);
+}
+
+
+
+.title{
+  font-weight: auto;
+  text-align: center;
+  height: auto;
+  width: auto;
+  font-family: Arial, Helvetica;
+  color: rgba(186, 130, 45, 0.929);
+
+}
+
 
 .form-control {
   background-color: #e2e0e0c6;
@@ -59,7 +86,7 @@ input[type="date"].form-control:invalid {
   top: 30%;
   right: 30px;
   width: 170px;
-  background-color: #deeef5a8;
+  background-color: #18c04ba8;
   height: 150px;
   gap: 20px;
   border-radius: 10px;
@@ -101,16 +128,6 @@ input[type="date"].form-control:invalid {
 
 .sm > p {
   margin: 0;
-}
-
-.HomeContainer {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-image: url("https://cdn.pixabay.com/photo/2017/12/02/17/47/wintry-2993370_1280.jpg");
-  background-repeat: no-repeat;
-  height: 450px;
-  background-size: cover;
 }
 
 #imgCover {
@@ -333,4 +350,32 @@ table td {
   background: #f0fbff;
   box-shadow: inset -8px -8px 25px #e6f1f5,
               inset 8px 8px 25px #faffff;
+}
+.avatar {
+  vertical-align: middle;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+}
+
+.student {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
+  width: 100px;
+  height: 50;
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 3px;
+}
+
+.students {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  flex-wrap: wrap;
+  direction: rtl;
+  
+  gap: 40px;
 }

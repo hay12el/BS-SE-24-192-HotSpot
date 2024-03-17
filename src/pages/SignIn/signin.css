@@ -4,6 +4,7 @@
     align-items: center;
     justify-content: space-between;
     margin: 20px;
+    
 }
 
 #Sin{
@@ -44,8 +45,8 @@
     height: 50px;
     border: none;
     padding: 10px 20px;
-    background-color: #0071c2;
-    color:white;
+    background-color: rgba(186, 130, 45, 0.929);
+    color: rgb(245, 238, 226);
     cursor: pointer;
     border-radius: 5px;
 }
