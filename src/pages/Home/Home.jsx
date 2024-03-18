@@ -1,13 +1,22 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { useState } from "react";
 import "./home.css";
 import VideoComponent from "../../components/video/VideoComponent";
 import Loader from "../../components/loader/Loader";
 import { useNavigate } from "react-router-dom";
+import { CheckAuth } from "../../hooks/hooks";
 
 function Home() {
   const [show, setShow] = useState(false);
   const navigate = useNavigate();
+  const isLogIn = CheckAuth();
+
+  useEffect(() => {
+    if (!isLogIn) {
+      navigate("/login");
+    }
+  }, []);
+
 
   return (
     <>

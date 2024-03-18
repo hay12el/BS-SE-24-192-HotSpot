@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import "./NewStudent.css";
 import { useNavigate } from "react-router-dom";
@@ -6,6 +6,7 @@ import { addDoc, collection } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { v4 as uuidv4 } from "uuid";
 import { db, storage } from "../../firebase";
+import { CheckAuth } from "../../hooks/hooks";
 
 function NewStudent() {
   const [details, setDetails] = useState({
@@ -17,6 +18,13 @@ function NewStudent() {
   const [progress, setProgress] = useState(null);
   const [file, setFile] = useState(null);
   const navigate = useNavigate();
+  const isLogIn = CheckAuth();
+
+  useEffect(() => {
+    if (!isLogIn) {
+      navigate("/login");
+    }
+  }, []);
 
   const handleFileUpload = (event) => {
     setFile(event.target.files[0]);

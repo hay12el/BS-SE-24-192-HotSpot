@@ -16,9 +16,9 @@ import {
 
 function MyStudents() {
   const navigate = useNavigate();
-  const isLogIn = CheckAuth();
   const [students, setStudents] = useState([]);
   const { currentUser } = useAuth();
+  const isLogIn = CheckAuth();
 
   useEffect(() => {
     if (!isLogIn) {

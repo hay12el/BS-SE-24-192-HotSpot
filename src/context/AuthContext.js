@@ -1,8 +1,10 @@
 import React, { useContext, useState, useEffect } from "react";
 import { auth } from "../firebase";
 import { signInWithEmailAndPassword, logout } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 
 const AuthContext = React.createContext();
+
 
 export function useAuth() {
   return useContext(AuthContext);
@@ -11,6 +13,7 @@ export function useAuth() {
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState();
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   function signup(email, password) {
     return auth.createUserWithEmailAndPassword(email, password);
@@ -21,6 +24,7 @@ export function AuthProvider({ children }) {
   }
 
   function logout() {
+    navigate('/login');
     return auth.signOut();
   }
 
