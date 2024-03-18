@@ -17,14 +17,6 @@ const VideoComponent = ({ videoUrl }) => {
     drawVerticalLines();
   }, [verticalLines]);
 
-  // const onDrop = (acceptedFiles) => {
-  //   const file = acceptedFiles[0];
-  //   const videoObjectUrl = URL.createObjectURL(file);
-  //   setVideoUrl(videoObjectUrl);
-  // };
-
-  // const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
-
   const handlePlayPause = () => {
     const videoElement = videoRef.current;
     if (videoElement.paused) {
@@ -48,6 +40,7 @@ const VideoComponent = ({ videoUrl }) => {
       setTotalTime(videoElement.duration);
       setPausedTime(videoElement.currentTime);
       const canvasElement = canvasRef.current;
+      canvasElement.crossOrigin = "anonymous" ;
       setHotspot(true);
 
       canvasElement.width = 640;
@@ -62,8 +55,12 @@ const VideoComponent = ({ videoUrl }) => {
         canvasElement.height
       );
 
-      const imageBlob = canvasElement.toDataURL("image/png");
-      setCapturedImage(imageBlob);
+      // var img = new Image();
+      // img.src = videoElement
+      // console.log(img);
+      // const imageBlob = canvasElement.toDataURL("image/png");
+      // const imageBlob = canvasElement.toDataURL();
+      // setCapturedImage(videoElement);
     } catch (error) {
       console.log(error);
     }
@@ -131,14 +128,14 @@ const VideoComponent = ({ videoUrl }) => {
             ></canvas>{" "}
             {/* Added line */}
             <div className="buttons">
-              <button id="button" onClick={handlePlayPause}>
+              {/* <button id="button" onClick={handlePlayPause}>
                 Play/Pause
               </button>
               <button id="button" onClick={handleStop}>
                 Stop
-              </button>
+              </button> */}
               <button id="button" onClick={handleCaptureImage}>
-                Capture Image
+              לכידת תמונה
               </button>
             </div>
           </div>

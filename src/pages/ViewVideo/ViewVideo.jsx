@@ -3,11 +3,13 @@ import { useAuth } from "../../context/AuthContext";
 import { db } from "../../firebase";
 import "../gallery/Gallery.css";
 import { collection, doc, getDoc, getDocs, query } from "firebase/firestore";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import HotSpotPic from "../../components/hotspotPic/HotSpotPic";
+import './ViewVideo.css'
 
 function ViewVideo() {
   const params = useParams();
+  const navigate = useNavigate()
   const [videoUrl, setVideoUrl] = useState("");
   const [hotspot, setHotspot] = useState(false);
   const [hotspots, setHotspots] = useState(null);
@@ -180,7 +182,7 @@ function ViewVideo() {
     }
   };
   return (
-    <div className="videoContainer">
+    <div className="videoContainer" style={{ position: "relative" }}>
       <div id="search-form">
         <div id="header">
           <h1>עריכת נקודות חמות</h1>
@@ -188,6 +190,12 @@ function ViewVideo() {
         <div id="header">
           <h3>בחר סרטון והוסף נקודות חמות</h3>
         </div>
+      </div>
+
+      <div className="backB">
+        <button id="button" onClick={() => navigate(-1)}>
+        <span className="glyphicon glyphicon-arrow-left"/> חזרה לגלריה
+        </button>
       </div>
 
       {videoUrl && (
@@ -212,16 +220,7 @@ function ViewVideo() {
               width="610"
               height="20"
               style={lineCanvasStyle}
-            ></canvas>{" "}
-            <div className="buttons">
-              <button id="button" onClick={handleStop}>
-                <span className="glyphicon glyphicon-stop"></span>
-              </button>
-              <button id="button" onClick={handlePlayPause}>
-                <span className="glyphicon glyphicon-pause"></span>
-                <span className="glyphicon glyphicon-play"></span>
-              </button>
-            </div>
+            ></canvas>
           </div>
         </div>
       )}
@@ -232,6 +231,7 @@ function ViewVideo() {
           canvasRef={canvasRef}
           setHotspot={setHotspot}
           videoRef={videoRef}
+          hotspotIndicator={hotspot}
         />
       </div>
     </div>

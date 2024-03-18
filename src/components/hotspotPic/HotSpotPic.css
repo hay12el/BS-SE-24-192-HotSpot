@@ -1,0 +1,24 @@
+.counters {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    justify-content: space-around;
+    align-items: center;
+    direction: rtl;
+    margin-top: 20px;
+}
+
+.score{
+    display: flex;
+    flex-direction: column;
+    align-items: center;justify-content: center;
+    padding: 5px;
+    border-radius: 5px;
+    width: 120px;
+    background-color: transparent;
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+}
+
+h2, h3 {
+    margin: 5px;
+}

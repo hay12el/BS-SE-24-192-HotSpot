@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { ChromePicker } from "react-color";
 import "./HotspotSetting.css";
 import { useAuth } from "../../context/AuthContext";
@@ -13,7 +13,8 @@ import {
   where,
 } from "firebase/firestore";
 import { v4 as uuidv4 } from "uuid";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { ObjectDetector } from "../objectDetector/index";
 
 function HotspotSetting({
   capturedImage,
@@ -31,8 +32,10 @@ function HotspotSetting({
   const [hotspotColor, setHotspotColor] = useState("red");
   const recordedChunks = useRef([]);
   const [squares, setSquares] = useState([]);
+  const [squareWidth, setSquareWidth] = useState(30);
   const { currentUser } = useAuth();
   const params = useParams();
+  const [O_DETECTION, setO_DETECTION] = useState(false);
 
   const handleColorChange = (color) => {
     setSelectedColor(color.hex);
@@ -65,6 +68,7 @@ function HotspotSetting({
             // offsetX: it.offsetX, //
             // offsetY: it.offsetY, //
             itemClickCount: 0,
+            success: 0,
             points: recordedChunks, //
             timestamp: pausedTime,
             title: name,
@@ -109,6 +113,7 @@ function HotspotSetting({
     setHotspot(false);
     setCapturedImage(null);
     setVerticalLines([...verticalLines, (pausedTime / totalTime) * 610]);
+    setSquareWidth(30)
   };
 
   const redrawSquares = (context) => {
@@ -119,7 +124,7 @@ function HotspotSetting({
     context.fillStyle = hotspotColor;
 
     recordedChunks.current.forEach((square) => {
-      context.fillRect(square.x - 15, square.y - 15, 30, 30);
+      context.fillRect(square.x - 15, square.y - 15, squareWidth, squareWidth);
     });
   };
 
@@ -130,18 +135,17 @@ function HotspotSetting({
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
 
-    recordedChunks.current.push({ x: x, y: y });
+    recordedChunks.current.push({ x: x, y: y, width: squareWidth });
 
     // // Draw the square on the canvas
     context.globalAlpha = 0.3;
     context.fillStyle = hotspotColor;
 
     squares.forEach((square) => {
-      context.fillRect(square.x, square.y, 30, 30);
+      context.fillRect(square.x, square.y, squareWidth, squareWidth);
     });
 
-    context.fillRect(x - 15, y - 15, 30, 30);
-    console.log(recordedChunks.current);
+    context.fillRect(x - 15, y - 15, squareWidth, squareWidth);
   };
   return (
     <div className="canvaspicker">
@@ -154,40 +158,67 @@ function HotspotSetting({
           color: "#0a7cae",
           cursor: "pointer",
         }}
-        class="glyphicon glyphicon-remove"
+        className="glyphicon glyphicon-remove"
       ></span>
-
-      <div>
-        <canvas
-          ref={canvasRef}
-          style={canvasStyle}
-          onMouseDown={handleCanvasDraw}
-        ></canvas>
+      <div
+        className="od"
+        style={{ visibility: !O_DETECTION ? "hidden" : "visible" }}
+      >
+        <ObjectDetector
+          setO_DETECTION={setO_DETECTION}
+          capturedImage={capturedImage}
+        />
       </div>
-      <div className="settingsContainer">
-        <label>
-          <h4>כותרת:</h4>
-          <input type="text" value={name} onChange={handleNameChange} />
-        </label>
 
-        <br />
-        <label>
-          <h4>בחר צבע:</h4>
-          <ChromePicker color={selectedColor} onChange={handleColorChange} />
-        </label>
+      <div
+        className="canvaspicker"
+        style={{ visibility: O_DETECTION ? "hidden" : "visible" }}
+      >
+        <div>
+          <canvas
+            ref={canvasRef}
+            style={canvasStyle}
+            onMouseDown={handleCanvasDraw}
+          ></canvas>
+        </div>
+        <div className="settingsContainer">
+          <label>
+            <h4>כותרת:</h4>
+            <input type="text" value={name} onChange={handleNameChange} />
+          </label>
 
-        <br />
-        <div className="buttons">
-          <button id="button" onClick={removeLastSquare}>
-            <span class="glyphicon glyphicon-repeat"></span>
-          </button>
-          <button
-            id="button"
-            style={{ color: "#0a7cae", fontWeight: "600" }}
-            onClick={handleSubmit}
-          >
-            הוסף נקודה חמה
-          </button>
+          <br />
+          <label>
+            <h4>בחר צבע:</h4>
+            <ChromePicker color={selectedColor} onChange={handleColorChange} />
+          </label>
+          
+          <br />
+          <label>
+            <h4>עובי הריבוע:</h4>
+            <input type="range" min="5" max="70" defaultValue={squareWidth} onChange={(e) => setSquareWidth(e.target.value)}/>
+          </label>
+
+          <br />
+          <div className="buttons">
+            <button id="button" onClick={removeLastSquare}>
+              <span class="glyphicon glyphicon-repeat"></span>
+            </button>
+            <button
+              id="button"
+              style={{ color: "#0a7cae", fontWeight: "600" }}
+              onClick={handleSubmit}
+            >
+              הוסף נקודה חמה
+            </button>
+            <button
+              id="button"
+              style={{ color: "#0a7cae", fontWeight: "600" }}
+              onClick={() => setO_DETECTION(true)}
+            >
+              זיהוי אוביקטים
+            </button>
+          </div>
         </div>
       </div>
     </div>

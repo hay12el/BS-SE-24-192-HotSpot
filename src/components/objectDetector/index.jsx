@@ -9,6 +9,7 @@ const ObjectDetectorContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100%;
 `;
 
 const DetectorContainer = styled.div`
@@ -72,7 +73,7 @@ const TargetBox = styled.div`
   }
 `;
 
-export function ObjectDetector(props) {
+export function ObjectDetector({ setO_DETECTION, capturedImage }) {
   const fileInputRef = useRef();
   const imageRef = useRef();
   const [imgData, setImgData] = useState(null);
@@ -147,7 +148,7 @@ export function ObjectDetector(props) {
   return (
     <ObjectDetectorContainer>
       <DetectorContainer>
-        {imgData && <TargetImg src={imgData} ref={imageRef} />}
+        {imgData && <TargetImg src={capturedImage} ref={imageRef} />}
         {!isEmptyPredictions &&
           predictions.map((prediction, idx) => (
             <TargetBox
@@ -161,14 +162,17 @@ export function ObjectDetector(props) {
             />
           ))}
       </DetectorContainer>
-      <HiddenFileInput
+      <button id="button" onClick={() => setO_DETECTION(false)}>
+        <span class="	glyphicon glyphicon-arrow-left"></span>
+      </button>
+      {/* <HiddenFileInput
         type="file"
         ref={fileInputRef}
         onChange={onSelectImage}
       />
       <SelectButton onClick={openFilePicker}>
         {isLoading ? "Recognizing..." : "Select Image"}
-      </SelectButton>
+      </SelectButton> */}
     </ObjectDetectorContainer>
   );
 }

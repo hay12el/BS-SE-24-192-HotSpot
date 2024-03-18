@@ -62,6 +62,12 @@ function Gallery() {
         paddingLeft: "30px",
       }}
     >
+      <div className="backB">
+        <button id="button" onClick={() => navigate(-1)} style={{direction: "ltr"}}>
+          <span className="glyphicon glyphicon-arrow-left" /> חזרה לרשימת
+          הסטודנטים
+        </button>
+      </div>
       <div className="buttons">
         <button id="button" onClick={() => navigate(`/addphoto/${studentID}`)}>
           הוסף תמונה או סרטון
@@ -91,7 +97,7 @@ function Gallery() {
                     id="button"
                     onClick={() => navigate(`/editvideo/${v.id}/${studentID}`)}
                   >
-                    ערוך נקודות חמות
+                    ערוך סרטון
                   </button>
                   <button
                     id="button"
@@ -110,7 +116,11 @@ function Gallery() {
         <div className="gallaryContainer">
           {photos.map((p, i) => {
             return (
-              <Link className="gallery" to={`/editphoto/${p.id}/${studentID}`} key={i}>
+              <Link
+                className="gallery"
+                to={`/editphoto/${p.id}/${studentID}`}
+                key={i}
+              >
                 <div className="gallery">
                   <img src={p.fileUri} alt="" />
                   <div className="desc">{p.title}</div>
