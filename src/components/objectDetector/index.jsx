@@ -27,29 +27,6 @@ const TargetImg = styled.img`
   height: 100%;
 `;
 
-const HiddenFileInput = styled.input`
-  display: none;
-`;
-
-const SelectButton = styled.button`
-  padding: 7px 10px;
-  border: 2px solid transparent;
-  background-color: #fff;
-  color: #0a0f22;
-  font-size: 16px;
-  font-weight: 500;
-  outline: none;
-  margin-top: 2em;
-  cursor: pointer;
-  transition: all 260ms ease-in-out;
-
-  &:hover {
-    background-color: transparent;
-    border: 2px solid #fff;
-    color: #fff;
-  }
-`;
-
 const TargetBox = styled.div`
   position: absolute;
 
@@ -74,17 +51,10 @@ const TargetBox = styled.div`
 `;
 
 export function ObjectDetector({ setO_DETECTION, capturedImage }) {
-  const fileInputRef = useRef();
   const imageRef = useRef();
-  const [imgData, setImgData] = useState(null);
   const [predictions, setPredictions] = useState([]);
   const [isLoading, setLoading] = useState(false);
-
   const isEmptyPredictions = !predictions || predictions.length === 0;
-
-  const openFilePicker = () => {
-    if (fileInputRef.current) fileInputRef.current.click();
-  };
 
   const normalizePredictions = (predictions, imgSize) => {
     if (!predictions || !imgSize || !imageRef) return predictions || [];
@@ -115,25 +85,12 @@ export function ObjectDetector({ setO_DETECTION, capturedImage }) {
     console.log("Predictions: ", predictions);
   };
 
-  const readImage = (file) => {
-    return new Promise((rs, rj) => {
-      const fileReader = new FileReader();
-      fileReader.onload = () => rs(fileReader.result);
-      fileReader.onerror = () => rj(fileReader.error);
-      fileReader.readAsDataURL(file);
-    });
-  };
-
-  const onSelectImage = async (e) => {
+  const onSelectImage = async () => {
     setPredictions([]);
     setLoading(true);
 
-    const file = e.target.files[0];
-    const imgData = await readImage(file);
-    setImgData(imgData);
-
     const imageElement = document.createElement("img");
-    imageElement.src = imgData;
+    imageElement.src = capturedImage;
 
     imageElement.onload = async () => {
       const imgSize = {
@@ -148,7 +105,7 @@ export function ObjectDetector({ setO_DETECTION, capturedImage }) {
   return (
     <ObjectDetectorContainer>
       <DetectorContainer>
-        {imgData && <TargetImg src={capturedImage} ref={imageRef} />}
+        {<TargetImg src={capturedImage} ref={imageRef} />}
         {!isEmptyPredictions &&
           predictions.map((prediction, idx) => (
             <TargetBox
@@ -165,14 +122,9 @@ export function ObjectDetector({ setO_DETECTION, capturedImage }) {
       <button id="button" onClick={() => setO_DETECTION(false)}>
         <span class="	glyphicon glyphicon-arrow-left"></span>
       </button>
-      {/* <HiddenFileInput
-        type="file"
-        ref={fileInputRef}
-        onChange={onSelectImage}
-      />
-      <SelectButton onClick={openFilePicker}>
-        {isLoading ? "Recognizing..." : "Select Image"}
-      </SelectButton> */}
+      <button id="button" onClick={onSelectImage}>
+        <span class="	glyphicon glyphicon-arrow-left">בדוק</span>
+      </button>
     </ObjectDetectorContainer>
   );
 }

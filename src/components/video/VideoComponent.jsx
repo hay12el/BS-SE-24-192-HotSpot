@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import HotspotSetting from "../hotspotSetting/HotspotSetting";
 import "./VideoComponent.css";
 
-const VideoComponent = ({ videoUrl }) => {
+const VideoComponent = ({ videoUrl, videoObject }) => {
   // const [videoUrl, setVideoUrl] = useState(null);
   const [capturedImage, setCapturedImage] = useState(null);
   const [hotspot, setHotspot] = useState(false);
@@ -40,7 +40,6 @@ const VideoComponent = ({ videoUrl }) => {
       setTotalTime(videoElement.duration);
       setPausedTime(videoElement.currentTime);
       const canvasElement = canvasRef.current;
-      canvasElement.crossOrigin = "anonymous" ;
       setHotspot(true);
 
       canvasElement.width = 640;
@@ -55,12 +54,7 @@ const VideoComponent = ({ videoUrl }) => {
         canvasElement.height
       );
 
-      // var img = new Image();
-      // img.src = videoElement
-      // console.log(img);
       // const imageBlob = canvasElement.toDataURL("image/png");
-      // const imageBlob = canvasElement.toDataURL();
-      // setCapturedImage(videoElement);
     } catch (error) {
       console.log(error);
     }

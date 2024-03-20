@@ -63,7 +63,11 @@ function Gallery() {
       }}
     >
       <div className="backB">
-        <button id="button" onClick={() => navigate(-1)} style={{direction: "ltr"}}>
+        <button
+          id="button"
+          onClick={() => navigate(-1)}
+          style={{ direction: "ltr" }}
+        >
           <span className="glyphicon glyphicon-arrow-left" /> חזרה לרשימת
           הסטודנטים
         </button>
@@ -88,6 +92,7 @@ function Gallery() {
                       borderTopLeftRadius: "15px",
                       borderTopRightRadius: "15px",
                     }}
+                    controls={false}
                   ></video>
                   <div className="desc">{v.title}</div>
                 </div>
@@ -111,21 +116,32 @@ function Gallery() {
           })}
         </div>
       </div>
-      <div style={{ marginBottom: "100px" }}>
+      <div style={{ paddingBottom: "50px" }}>
         <h1>תמונות</h1>
         <div className="gallaryContainer">
           {photos.map((p, i) => {
             return (
-              <Link
-                className="gallery"
-                to={`/editphoto/${p.id}/${studentID}`}
-                key={i}
-              >
+              <div className="vv" key={i}>
                 <div className="gallery">
-                  <img src={p.fileUri} alt="" />
+                  <img style={{borderRadius: "10px"}} src={p.fileUri} alt="" />
                   <div className="desc">{p.title}</div>
                 </div>
-              </Link>
+
+                <div className="buttons buttons_under">
+                  <button
+                    id="button"
+                    onClick={() => navigate(`/editphoto/${p.id}/${studentID}`)}
+                  >
+                    ערוך תמונה
+                  </button>
+                  <button
+                    id="button"
+                    onClick={() => navigate(`/ViewVideo/${p.id}/${studentID}`)}
+                  >
+                  צפה בתמונה
+                  </button>
+                </div>
+              </div>
             );
           })}
         </div>

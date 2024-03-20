@@ -1,5 +1,10 @@
 .backB {
-    position: absolute;
-    top: 200px;
-    left: 30px;
+  position: absolute;
+  top: 200px;
+  left: 30px;
+}
+
+video::-webkit-media-controls-panel {
+  display: flex !important;
+  opacity: 1 !important;
 }

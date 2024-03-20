@@ -113,7 +113,15 @@ function HotspotSetting({
     setHotspot(false);
     setCapturedImage(null);
     setVerticalLines([...verticalLines, (pausedTime / totalTime) * 610]);
-    setSquareWidth(30)
+    setSquareWidth(30);
+  };
+
+  const hci = () => {
+    const canvasElement = canvasRef.current;
+
+    setCapturedImage(canvasElement.toDataURL());
+    // const imageBlob = canvasElement.toDataURL("image/png");
+    setO_DETECTION(true);
   };
 
   const redrawSquares = (context) => {
@@ -192,11 +200,17 @@ function HotspotSetting({
             <h4>בחר צבע:</h4>
             <ChromePicker color={selectedColor} onChange={handleColorChange} />
           </label>
-          
+
           <br />
           <label>
             <h4>עובי הריבוע:</h4>
-            <input type="range" min="5" max="70" defaultValue={squareWidth} onChange={(e) => setSquareWidth(e.target.value)}/>
+            <input
+              type="range"
+              min="5"
+              max="70"
+              defaultValue={squareWidth}
+              onChange={(e) => setSquareWidth(e.target.value)}
+            />
           </label>
 
           <br />
@@ -214,7 +228,7 @@ function HotspotSetting({
             <button
               id="button"
               style={{ color: "#0a7cae", fontWeight: "600" }}
-              onClick={() => setO_DETECTION(true)}
+              onClick={hci}
             >
               זיהוי אוביקטים
             </button>

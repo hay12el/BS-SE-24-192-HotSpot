@@ -42,7 +42,40 @@ function EditPhoto() {
         paddingLeft: "30px",
       }}
     >
-      {image && <img src={image.fileUri} alt="" />}
+      {image && (
+        <div className="videoContainer">
+          <div
+            className="videoContainer"
+            //  style={{ display: hotspot ? "none" : "flex" }}
+            style={{ display: "flex" }}
+          >
+            <img src={image.fileUri} alt="" style={{ width: "80%" }} />
+            {/* Added line */}
+            <div className="buttons">
+              {/* <button id="button" onClick={handlePlayPause}>
+             Play/Pause
+           </button>
+           <button id="button" onClick={handleStop}>
+             Stop
+           </button> */}
+              <button id="button">הופסת נקודה חמה</button>
+            </div>
+          </div>
+          {/* <div style={{ display: !hotspot ? "none" : "flex" }}>
+         <HotspotSetting
+           capturedImage={capturedImage}
+           canvasRef={canvasRef}
+           handleCaptureImage={handleCaptureImage}
+           setCapturedImage={setCapturedImage}
+           setHotspot={setHotspot}
+           pausedTime={pausedTime}
+           totalTime={totalTime}
+           setVerticalLines={setVerticalLines}
+           verticalLines={verticalLines}
+         />
+       </div> */}
+        </div>
+      )}
       {/* <div className="settingsContainer">
         <label>
           <h4>כותרת:</h4>
