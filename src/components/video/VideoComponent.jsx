@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import HotspotSetting from "../hotspotSetting/HotspotSetting";
 import "./VideoComponent.css";
+import { useNavigate } from "react-router-dom";
 
 const VideoComponent = ({ videoUrl, videoObject }) => {
   // const [videoUrl, setVideoUrl] = useState(null);
@@ -12,6 +13,7 @@ const VideoComponent = ({ videoUrl, videoObject }) => {
   const [totalTime, setTotalTime] = useState(0);
   const [verticalLines, setVerticalLines] = useState([]);
   const lineCanvasRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     drawVerticalLines();
@@ -95,6 +97,12 @@ const VideoComponent = ({ videoUrl, videoObject }) => {
         <div id="header">
           <h3>בחר סרטון והוסף נקודות חמות</h3>
         </div>
+      </div>
+
+      <div className="backB">
+        <button id="button" onClick={() => navigate(-1)}>
+        <span className="glyphicon glyphicon-arrow-left"/> חזרה לגלריה
+        </button>
       </div>
 
       {videoUrl && (

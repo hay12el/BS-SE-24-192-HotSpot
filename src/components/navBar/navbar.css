@@ -29,10 +29,10 @@
   margin-right: 20px;
   cursor: pointer;
   padding: 5px 10px;
-  color: rgb(255, 255, 255);
+  color: rgb(83, 83, 83);
   font-weight: bold;
   font-size: 14px;
-  background-color: transparent;
+  background-color: wheat;
   background-repeat: no-repeat;
   border-radius: 30px;
   border: 1px solid white;
@@ -41,6 +41,5 @@
 }
 
 .btn:hover {
-  background-color: white;
-  color: #00a1d6;
+  background-color: rgb(235, 189, 103);
 }

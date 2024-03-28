@@ -4,6 +4,7 @@ import styled from "styled-components";
 import "@tensorflow/tfjs-backend-cpu";
 //import "@tensorflow/tfjs-backend-webgl";
 import * as cocoSsd from "@tensorflow-models/coco-ssd";
+import Loader from "../loader/Loader";
 
 const ObjectDetectorContainer = styled.div`
   display: flex;
@@ -87,6 +88,7 @@ export function ObjectDetector({ setO_DETECTION, capturedImage }) {
 
   const onSelectImage = async () => {
     setPredictions([]);
+    console.log("try");
     setLoading(true);
 
     const imageElement = document.createElement("img");
@@ -104,6 +106,7 @@ export function ObjectDetector({ setO_DETECTION, capturedImage }) {
 
   return (
     <ObjectDetectorContainer>
+      <Loader show={isLoading} />
       <DetectorContainer>
         {<TargetImg src={capturedImage} ref={imageRef} />}
         {!isEmptyPredictions &&
@@ -119,11 +122,11 @@ export function ObjectDetector({ setO_DETECTION, capturedImage }) {
             />
           ))}
       </DetectorContainer>
+      <button id="button" onClick={onSelectImage}>
+        בדוק
+      </button>
       <button id="button" onClick={() => setO_DETECTION(false)}>
         <span class="	glyphicon glyphicon-arrow-left"></span>
-      </button>
-      <button id="button" onClick={onSelectImage}>
-        <span class="	glyphicon glyphicon-arrow-left">בדוק</span>
       </button>
     </ObjectDetectorContainer>
   );

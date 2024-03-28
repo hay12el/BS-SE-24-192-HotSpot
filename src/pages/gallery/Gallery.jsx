@@ -83,14 +83,14 @@ function Gallery() {
         <div className="gallaryContainer">
           {videos.map((v, i) => {
             return (
-              <div className="vv" key={i}>
+              <div className="hh" key={i}>
                 <div className="gallery">
                   <video
                     src={v.videoUri}
                     style={{
                       height: "100%",
-                      borderTopLeftRadius: "15px",
-                      borderTopRightRadius: "15px",
+                      borderTopLeftRadius: "8px",
+                      borderTopRightRadius: "8px",
                     }}
                     controls={false}
                   ></video>
@@ -121,7 +121,7 @@ function Gallery() {
         <div className="gallaryContainer">
           {photos.map((p, i) => {
             return (
-              <div className="vv" key={i}>
+              <div className="hh" key={i}>
                 <div className="gallery">
                   <img style={{borderRadius: "10px"}} src={p.fileUri} alt="" />
                   <div className="desc">{p.title}</div>
@@ -136,7 +136,7 @@ function Gallery() {
                   </button>
                   <button
                     id="button"
-                    onClick={() => navigate(`/ViewVideo/${p.id}/${studentID}`)}
+                    onClick={() => navigate(`/ViewPhoto/${p.id}/${studentID}`)}
                   >
                   צפה בתמונה
                   </button>

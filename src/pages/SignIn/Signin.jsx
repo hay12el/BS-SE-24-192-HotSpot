@@ -5,6 +5,7 @@ import * as yup from "yup";
 import { useNavigate } from "react-router-dom";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from "../../firebase";
+import LOGO from '../../assets/images/logo-removebg-preview1.png'
 import { addDoc, collection, doc, setDoc } from "firebase/firestore";
 
 const Signin = () => {
@@ -106,9 +107,9 @@ const Signin = () => {
   };
 
   return (
-    <div className="containerBig" id="Sin1">
-      <div className="vv" id="Sin">
-        <div className="leftImg"></div>
+    <div className="containerBig">
+      <div className="vv">
+        <img src={LOGO} alt="logo" />
         <div className="inpC">
           <div className="upponLog">
             <p>הרשמה ראשונית</p>

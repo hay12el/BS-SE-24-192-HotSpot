@@ -14,6 +14,7 @@ import EditVideo from "../pages/EditVideo/EditVideo";
 import NewStudent from "../pages/newStudent/NewStudent";
 import ViewVideo from "../pages/ViewVideo/ViewVideo";
 import { ObjectDetector } from "../components/objectDetector";
+import ViewPhoto from "../pages/ViewPhoto/ViewPhoto";
 
 function MainRouter() {
   return (
@@ -30,6 +31,7 @@ function MainRouter() {
       <Route path="newstudent" element={<NewStudent />} />
       <Route path="viewvideo/:videoid/:studentid" element={<ViewVideo />} />
       <Route path="objectDetection" element={<ObjectDetector />} />
+      <Route path="viewphoto/:photoid/:studentid" element={<ViewPhoto />} />
       <Route path="*" element={<Error />} />
     </Routes>
   );

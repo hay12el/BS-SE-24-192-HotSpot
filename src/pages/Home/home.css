@@ -7,109 +7,16 @@
   background-color: rgba(255, 255, 255, 0.68);
 }
 
-.sm {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-}
-
-.form-control {
-  background-color: #e2e0e0c6;
-  height: 20px;
-  padding: 10px 25px;
-  border: none;
-  border-radius: 40px;
-  -webkit-box-shadow: 0px 0px 0px 2px transparent;
-  box-shadow: 0px 0px 0px 2px transparent;
-  -webkit-transition: 0.2s;
-  transition: 0.2s;
-}
-
-.form-control::-webkit-input-placeholder {
-  color: rgba(214, 71, 71, 0.5);
-}
-
-.form-control:-ms-input-placeholder {
-  color: rgba(255, 255, 255, 0.5);
-}
-
-.form-control::placeholder {
-  color: rgba(133, 37, 37, 0.5);
-}
-
-.form-control:focus {
-  -webkit-box-shadow: 0px 0px 0px 2px #ff8846;
-  box-shadow: 0px 0px 0px 2px #ff8846;
-}
-
-input[type="date"].form-control {
-  padding-top: 16px;
-}
-
-input[type="date"].form-control:invalid {
-  color: rgba(255, 255, 255, 0.5);
-}
-
-.GetAllFlight {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-  position: absolute;
-  top: 30%;
-  right: 30px;
-  width: 170px;
-  background-color: #deeef5a8;
-  height: 150px;
-  gap: 20px;
-  border-radius: 10px;
-}
-
-#np {
-  margin: 0px;
-  background-color: rgba(124, 124, 124, 0.509);
-}
-
-.gaf {
-  border-radius: 10px 10px 0px 0px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #00a0d6cc;
-  height: 50%;
-}
-
-.gaf > h3 {
-  margin: 0px;
-  color: #dbdbdb;
-  text-align: center;
-}
-
-.sortCont {
-  display: flex;
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  background-color: #0a7cae;
-  padding: 10px 0px;
-  border-radius: 0px 0px 7px 7px;
-}
-
-.sm > p {
-  margin: 0;
-}
-
 .HomeContainer {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-image: url("https://cdn.pixabay.com/photo/2017/12/02/17/47/wintry-2993370_1280.jpg");
+  flex-direction: column;
+  /* background-image: url("https://cdn.pixabay.com/photo/2017/12/02/17/47/wintry-2993370_1280.jpg"); */
   background-repeat: no-repeat;
-  height: 450px;
+  min-height: 100vh;
+  height: auto;
+  background: linear-gradient(wheat,#fbfbfb);
   background-size: cover;
 }
 

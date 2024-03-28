@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import LOGO from "../../assets/images/logo-removebg-preview.png";
+// import LOGO from "../../assets/images/logo-removebg-preview.png";
+import LOGO from "../../../src/assets/images/logo-removebg-preview1.png";
 import { useAuth } from "../../context/AuthContext";
 
 import "./navbar.css";

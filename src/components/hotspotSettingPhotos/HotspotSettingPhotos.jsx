@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { ChromePicker } from "react-color";
-import "./HotspotSetting.css";
+import "../hotspotSetting/HotspotSetting.css";
 import { useAuth } from "../../context/AuthContext";
 import { db, storage } from "../../firebase";
 import {
@@ -16,16 +16,10 @@ import { v4 as uuidv4 } from "uuid";
 import { useNavigate, useParams } from "react-router-dom";
 import { ObjectDetector } from "../objectDetector/index";
 
-function HotspotSetting({
+function HotspotSettingPhotos({
   capturedImage,
   canvasRef,
-  handleCaptureImage,
-  setCapturedImage,
   setHotspot,
-  pausedTime,
-  totalTime,
-  setVerticalLines,
-  verticalLines,
 }) {
   const [selectedColor, setSelectedColor] = useState("#ffffff");
   const [name, setName] = useState("");
@@ -59,23 +53,20 @@ function HotspotSetting({
         await setDoc(
           doc(
             db,
-            `/users/${userID}/students/${studentid}/videos/${photoid}/hotspots`,
+            `/users/${userID}/students/${studentid}/photos/${photoid}/hotspots`,
             newUUID
           ),
           {
-            // audioUri: it.audioUri, //
             color: selectedColor,
-            // offsetX: it.offsetX, //
-            // offsetY: it.offsetY, //
             itemClickCount: 0,
             success: 0,
-            points: recordedChunks, //
-            timestamp: pausedTime,
+            points: recordedChunks.current, 
             title: name,
             id: newUUID,
           }
         );
         alert("הנקודה החמה נוספה בהצלחה");
+
         handleClose();
       }
     } catch (error) {
@@ -95,15 +86,15 @@ function HotspotSetting({
     recordedChunks.current = [];
     setName("");
     setHotspot(false);
-    setCapturedImage(null);
-    setVerticalLines([...verticalLines, (pausedTime / totalTime) * 610]);
+    // setCapturedImage(null);
+    // setVerticalLines([...verticalLines, (pausedTime / totalTime) * 610]);
     setSquareWidth(30);
   };
 
   const hci = () => {
     const canvasElement = canvasRef.current;
 
-    setCapturedImage(canvasElement.toDataURL());
+    // setCapturedImage(canvasElement.toDataURL());
     // const imageBlob = canvasElement.toDataURL("image/png");
     setO_DETECTION(true);
   };
@@ -111,7 +102,7 @@ function HotspotSetting({
   const redrawSquares = (context) => {
     context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
 
-    handleCaptureImage(capturedImage);
+    // handleCaptureImage(capturedImage);
     context.globalAlpha = 0.3;
     context.fillStyle = hotspotColor;
 
@@ -124,20 +115,25 @@ function HotspotSetting({
     const canvasElement = canvasRef.current;
     const context = canvasElement.getContext("2d");
     const rect = canvasElement.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
+
+    const x = Math.floor(((event.clientX - rect.left) / canvasElement.width) * 100);
+    const y = Math.floor(((event.clientY - rect.top) / canvasElement.height) * 100);
+    console.log("x: ", x, " y: ", y);
 
     recordedChunks.current.push({ x: x, y: y, width: squareWidth });
+
+    console.log((x * canvasElement.width)/100);
+    console.log((y * canvasElement.height)/100);
 
     // // Draw the square on the canvas
     context.globalAlpha = 0.3;
     context.fillStyle = hotspotColor;
 
-    squares.forEach((square) => {
-      context.fillRect(square.x, square.y, squareWidth, squareWidth);
-    });
+    // squares.forEach((square) => {
+    //   context.fillRect(square.x, square.y, squareWidth, squareWidth);
+    // });
 
-    context.fillRect(x - 15, y - 15, squareWidth, squareWidth);
+    context.fillRect(((x * canvasElement.width)/100) - (squareWidth / 2), (y * canvasElement.height)/100 - (squareWidth / 2), squareWidth, squareWidth);
   };
   return (
     <div className="HotspotSettingContaner">
@@ -223,7 +219,7 @@ function HotspotSetting({
   );
 }
 
-export default HotspotSetting;
+export default HotspotSettingPhotos;
 
 const canvasStyle = {
   border: "1px solid #cccccc",

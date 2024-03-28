@@ -137,16 +137,6 @@ function AddPhoto() {
                 id: newUUID,
               }
             );
-            // addDoc(
-            //   collection(db, `/users/${userID}/students/${studentid}/photos`),
-            //   {
-            //     fileUri: downloadUrl,
-            //     title: name,
-            //     allClickCount: 0,
-            //     outsideClickCount: 0,
-            //     id: newUUID,
-            //   }
-            // );
           });
           setTimeout(() => {
             navigate(`/mygallery/${studentid}`);

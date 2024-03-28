@@ -29,6 +29,9 @@ function ViewVideo() {
 
   useEffect(() => {
     fetchData();
+    return() => {
+      
+    }
   }, []);
 
   //   useEffect(() => {

@@ -3,6 +3,7 @@ import { useState } from "react";
 import "./login.css";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import LOGO from '../../assets/images/logo-removebg-preview1.png'
 
 const Login = () => {
   const { login } = useAuth();
@@ -48,7 +49,7 @@ const Login = () => {
   return (
     <div className="containerBig">
       <div className="vv">
-        <div className="leftImg"></div>
+        <img src={LOGO} alt="logo" />
         <div className="inpC">
           <div className="upponLog">
             <p>התחברות</p>

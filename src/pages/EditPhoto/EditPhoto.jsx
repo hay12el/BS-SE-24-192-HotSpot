@@ -1,14 +1,18 @@
-import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import React, { useEffect, useRef, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { collection, getDoc, getDocs, query, where } from "firebase/firestore";
 import { db } from "../../firebase";
-import HotspotSetting from "../../components/hotspotSetting/HotspotSetting";
+import HotspotSettingPhotos from "../../components/hotspotSettingPhotos/HotspotSettingPhotos";
 
 function EditPhoto() {
   const [image, SetImage] = useState(null);
   const params = useParams();
   const { currentUser } = useAuth();
+  const canvasRef = useRef();
+  const imgRef = useRef();
+  const [hotspot, setHotspot] = useState(false);
+  const navigate = useNavigate()
 
   useEffect(() => {
     getData();
@@ -26,7 +30,26 @@ function EditPhoto() {
       );
       const photo = await getDocs(photoQuery);
       SetImage(photo.docs[0].data());
-      console.log(image);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const handleCaptureImage = () => {
+    try {
+      const canvasElement = canvasRef.current;
+      // setHotspot(true);
+      canvasElement.width = imgRef.current.width;
+      canvasElement.height = imgRef.current.height;
+
+      const context = canvasElement.getContext("2d");
+      context.drawImage(
+        imgRef.current,
+        0,
+        0,
+        canvasElement.width,
+        canvasElement.height
+      );
+      setHotspot(true);
     } catch (error) {
       console.log(error);
     }
@@ -40,16 +63,27 @@ function EditPhoto() {
         direction: "rtl",
         paddingRight: "30px",
         paddingLeft: "30px",
+        position: "relative"
       }}
     >
+      <div className="backB">
+        <button id="button" onClick={() => navigate(-1)}>
+        <span className="glyphicon glyphicon-arrow-left"/> חזרה לגלריה
+        </button>
+      </div>
       {image && (
         <div className="videoContainer">
           <div
             className="videoContainer"
-            //  style={{ display: hotspot ? "none" : "flex" }}
-            style={{ display: "flex" }}
+             style={{ display: hotspot ? "none" : "flex" }}
+            // style={{ display: "flex" }}
           >
-            <img src={image.fileUri} alt="" style={{ width: "80%" }} />
+            <img
+              src={image.fileUri}
+              alt=""
+              ref={imgRef}
+              style={{ width: "80%" }}
+            />
             {/* Added line */}
             <div className="buttons">
               {/* <button id="button" onClick={handlePlayPause}>
@@ -58,22 +92,19 @@ function EditPhoto() {
            <button id="button" onClick={handleStop}>
              Stop
            </button> */}
-              <button id="button">הופסת נקודה חמה</button>
+              <button id="button" onClick={handleCaptureImage}>
+                הופסת נקודה חמה
+              </button>
             </div>
           </div>
-          {/* <div style={{ display: !hotspot ? "none" : "flex" }}>
-         <HotspotSetting
-           capturedImage={capturedImage}
-           canvasRef={canvasRef}
-           handleCaptureImage={handleCaptureImage}
-           setCapturedImage={setCapturedImage}
-           setHotspot={setHotspot}
-           pausedTime={pausedTime}
-           totalTime={totalTime}
-           setVerticalLines={setVerticalLines}
-           verticalLines={verticalLines}
-         />
-       </div> */}
+          <div style={{ display: !hotspot ? "none" : "flex" }}>
+            {/* <div> */}
+            <HotspotSettingPhotos
+              capturedImage={image.fileUri}
+              canvasRef={canvasRef}
+              setHotspot={setHotspot}
+            />
+          </div>
         </div>
       )}
       {/* <div className="settingsContainer">
