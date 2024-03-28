@@ -37,9 +37,17 @@ function EditPhoto() {
   const handleCaptureImage = () => {
     try {
       const canvasElement = canvasRef.current;
+      const screenWidth = window.screen.width;
       // setHotspot(true);
-      canvasElement.width = imgRef.current.width;
-      canvasElement.height = imgRef.current.height;
+       if (screenWidth > 600) {
+      canvasElement.width = screenWidth / 2;
+      canvasElement.height = canvasElement.width * (imgRef.current.height / imgRef.current.width);
+    } else {
+      canvasElement.width = screenWidth - 20;
+      canvasElement.height = canvasElement.width * (imgRef.current.height / imgRef.current.width);
+    }
+      // canvasElement.width = imgRef.current.width;
+      // canvasElement.height = imgRef.current.height;
 
       const context = canvasElement.getContext("2d");
       context.drawImage(
@@ -93,7 +101,7 @@ function EditPhoto() {
              Stop
            </button> */}
               <button id="button" onClick={handleCaptureImage}>
-                הופסת נקודה חמה
+                הוספת נקודה חמה
               </button>
             </div>
           </div>

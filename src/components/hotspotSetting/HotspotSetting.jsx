@@ -36,6 +36,7 @@ function HotspotSetting({
   const { currentUser } = useAuth();
   const params = useParams();
   const [O_DETECTION, setO_DETECTION] = useState(false);
+  const [pred, setPred] = useState(null);
 
   const handleColorChange = (color) => {
     setSelectedColor(color.hex);
@@ -119,6 +120,10 @@ function HotspotSetting({
       context.fillRect(square.x - 15, square.y - 15, squareWidth, squareWidth);
     });
   };
+  const handlePredictClick = (pred) => {
+    alert("האם תרצה/י לשמור את האוביקט כנקודה חמה?")
+  }
+
 
   const handleCanvasDraw = (event) => {
     const canvasElement = canvasRef.current;
@@ -154,17 +159,34 @@ function HotspotSetting({
       ></span>
       <div
         className="od"
-        style={{ visibility: !O_DETECTION ? "hidden" : "visible", display: !O_DETECTION ? "none" : "flex"}}
+        style={{
+          visibility: !O_DETECTION ? "hidden" : "visible",
+          display: !O_DETECTION ? "none" : "flex",
+        }}
       >
         <ObjectDetector
           setO_DETECTION={setO_DETECTION}
           capturedImage={capturedImage}
+          setPred={setPred}
         />
+        <div className="predicts">
+          {pred &&
+            pred.map((p) => {
+              return (
+                <div className="predictCont" onClick={handlePredictClick}>
+                  <h3>{p.class}</h3>
+                </div>
+              );
+            })}
+        </div>
       </div>
 
       <div
         className="canvaspicker"
-        style={{ visibility: O_DETECTION ? "hidden" : "visible", display: O_DETECTION ? "none" : "flex" }}
+        style={{
+          visibility: O_DETECTION ? "hidden" : "visible",
+          display: O_DETECTION ? "none" : "flex",
+        }}
       >
         <div>
           <canvas

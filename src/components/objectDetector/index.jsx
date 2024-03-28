@@ -51,7 +51,7 @@ const TargetBox = styled.div`
   }
 `;
 
-export function ObjectDetector({ setO_DETECTION, capturedImage }) {
+export function ObjectDetector({ setO_DETECTION, capturedImage, setPred }) {
   const imageRef = useRef();
   const [predictions, setPredictions] = useState([]);
   const [isLoading, setLoading] = useState(false);
@@ -83,17 +83,32 @@ export function ObjectDetector({ setO_DETECTION, capturedImage }) {
     const predictions = await model.detect(imageElement, 6);
     const normalizedPredictions = normalizePredictions(predictions, imgSize);
     setPredictions(normalizedPredictions);
+    setPred(normalizedPredictions)
     console.log("Predictions: ", predictions);
   };
 
   const onSelectImage = async () => {
     setPredictions([]);
-    console.log("try");
+    const imgElement = imageRef.current;
     setLoading(true);
 
+    const screenWidth = window.screen.width;
     const imageElement = document.createElement("img");
     imageElement.src = capturedImage;
+    imageElement.width = screenWidth / 2;
+    imageElement.height = imageElement.width * (imageElement.height / imageElement.width);
+    console.log(screenWidth);
+    console.log(imageElement.width);
+    console.log(imageElement.height);
 
+    
+    // if (screenWidth > 600) {
+    //   canvasElement.width = screenWidth / 2;
+    //   canvasElement.height = canvasElement.width * (img.height / img.width);
+    // } else {
+    //   canvasElement.width = screenWidth - 20;
+    //   canvasElement.height = canvasElement.width * (img.height / img.width);
+    // }
     imageElement.onload = async () => {
       const imgSize = {
         width: imageElement.width,

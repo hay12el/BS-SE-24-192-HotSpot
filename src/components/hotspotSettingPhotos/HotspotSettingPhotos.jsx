@@ -3,6 +3,7 @@ import { ChromePicker } from "react-color";
 import "../hotspotSetting/HotspotSetting.css";
 import { useAuth } from "../../context/AuthContext";
 import { db, storage } from "../../firebase";
+// import ImageDataURI from "image-data-uri";
 import {
   addDoc,
   collection,
@@ -16,11 +17,7 @@ import { v4 as uuidv4 } from "uuid";
 import { useNavigate, useParams } from "react-router-dom";
 import { ObjectDetector } from "../objectDetector/index";
 
-function HotspotSettingPhotos({
-  capturedImage,
-  canvasRef,
-  setHotspot,
-}) {
+function HotspotSettingPhotos({ capturedImage, canvasRef, setHotspot }) {
   const [selectedColor, setSelectedColor] = useState("#ffffff");
   const [name, setName] = useState("");
   const [hotspotColor, setHotspotColor] = useState("red");
@@ -28,8 +25,10 @@ function HotspotSettingPhotos({
   const [squares, setSquares] = useState([]);
   const [squareWidth, setSquareWidth] = useState(30);
   const { currentUser } = useAuth();
+  const [dataUri, setDataUri] = useState(null);
   const params = useParams();
   const [O_DETECTION, setO_DETECTION] = useState(false);
+  const [pred, setPred] = useState(null);
 
   const handleColorChange = (color) => {
     setSelectedColor(color.hex);
@@ -60,7 +59,7 @@ function HotspotSettingPhotos({
             color: selectedColor,
             itemClickCount: 0,
             success: 0,
-            points: recordedChunks.current, 
+            points: recordedChunks.current,
             title: name,
             id: newUUID,
           }
@@ -91,11 +90,14 @@ function HotspotSettingPhotos({
     setSquareWidth(30);
   };
 
-  const hci = () => {
-    const canvasElement = canvasRef.current;
-
-    // setCapturedImage(canvasElement.toDataURL());
-    // const imageBlob = canvasElement.toDataURL("image/png");
+  const hci = async () => {
+    let blob = await fetch(capturedImage).then((r) => r.blob());
+    let dataUrl = await new Promise((resolve) => {
+      let reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.readAsDataURL(blob);
+    });
+    setDataUri(dataUrl);
     setO_DETECTION(true);
   };
 
@@ -111,19 +113,27 @@ function HotspotSettingPhotos({
     });
   };
 
+  const handlePredictClick = (pred) => {
+    alert("האם תרצה/י לשמור את האוביקט כנקודה חמה?")
+  }
+
   const handleCanvasDraw = (event) => {
     const canvasElement = canvasRef.current;
     const context = canvasElement.getContext("2d");
     const rect = canvasElement.getBoundingClientRect();
 
-    const x = Math.floor(((event.clientX - rect.left) / canvasElement.width) * 100);
-    const y = Math.floor(((event.clientY - rect.top) / canvasElement.height) * 100);
+    const x = Math.floor(
+      ((event.clientX - rect.left) / canvasElement.width) * 100
+    );
+    const y = Math.floor(
+      ((event.clientY - rect.top) / canvasElement.height) * 100
+    );
     console.log("x: ", x, " y: ", y);
 
     recordedChunks.current.push({ x: x, y: y, width: squareWidth });
 
-    console.log((x * canvasElement.width)/100);
-    console.log((y * canvasElement.height)/100);
+    console.log((x * canvasElement.width) / 100);
+    console.log((y * canvasElement.height) / 100);
 
     // // Draw the square on the canvas
     context.globalAlpha = 0.3;
@@ -133,7 +143,12 @@ function HotspotSettingPhotos({
     //   context.fillRect(square.x, square.y, squareWidth, squareWidth);
     // });
 
-    context.fillRect(((x * canvasElement.width)/100) - (squareWidth / 2), (y * canvasElement.height)/100 - (squareWidth / 2), squareWidth, squareWidth);
+    context.fillRect(
+      (x * canvasElement.width) / 100 - squareWidth / 2,
+      (y * canvasElement.height) / 100 - squareWidth / 2,
+      squareWidth,
+      squareWidth
+    );
   };
   return (
     <div className="HotspotSettingContaner">
@@ -150,17 +165,34 @@ function HotspotSettingPhotos({
       ></span>
       <div
         className="od"
-        style={{ visibility: !O_DETECTION ? "hidden" : "visible", display: !O_DETECTION ? "none" : "flex"}}
+        style={{
+          visibility: !O_DETECTION ? "hidden" : "visible",
+          display: !O_DETECTION ? "none" : "flex",
+        }}
       >
         <ObjectDetector
           setO_DETECTION={setO_DETECTION}
-          capturedImage={capturedImage}
+          capturedImage={dataUri}
+          setPred={setPred}
         />
+        <div className="predicts">
+          {pred &&
+            pred.map((p) => {
+              return (
+                <div className="predictCont" onClick={handlePredictClick}>
+                  <h3>{p.class}</h3>
+                </div>
+              );
+            })}
+        </div>
       </div>
 
       <div
         className="canvaspicker"
-        style={{ visibility: O_DETECTION ? "hidden" : "visible", display: O_DETECTION ? "none" : "flex" }}
+        style={{
+          visibility: O_DETECTION ? "hidden" : "visible",
+          display: O_DETECTION ? "none" : "flex",
+        }}
       >
         <div>
           <canvas
