@@ -42,11 +42,12 @@ function MyStudents() {
   return (
     <div
       style={{
-        height: "100vh",
+        // height: "100vh",
         width: "100%",
         padding: "100px",
         direction: "rtl",
       }}
+      className="galleryCont"
     >
       <div>
         <h1 style={{ marginBottom: "50px" }}>הסטודנטים שלי</h1>

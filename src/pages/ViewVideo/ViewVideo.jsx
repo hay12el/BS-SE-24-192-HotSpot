@@ -44,9 +44,9 @@ function ViewVideo() {
       const totalTime = videoRef.current.duration; // Assuming 'duration' is a property in your video document
       const lines = hotspots.map((h) => (h.timestamp / totalTime) * 610);
       drawVerticalLines(lines);
-      const hotspotTime = hotspots.map((h) => Math.floor(h.timestamp));
+      const hotspotTime = hotspots.map((h) => Math.round(h.timestamp));
       const handleTimeUpdate = () => {
-        if (hotspotTime.includes(Math.floor(videoRef.current.currentTime))) {
+        if (hotspotTime.includes(Math.round(videoRef.current.currentTime))) {
           try {
             const videoElement = videoRef.current;
             const canvasElement = canvasRef.current;
@@ -72,8 +72,8 @@ function ViewVideo() {
           setHotspotDetails({
             hotspot: hotspots.filter(
               (h) =>
-                Math.floor(h.timestamp) ==
-                Math.floor(videoRef.current.currentTime)
+                Math.round(h.timestamp) ==
+                Math.round(videoRef.current.currentTime)
             )[0],
           });
           // Pause the video

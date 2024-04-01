@@ -106,6 +106,9 @@ function ViewPhoto() {
         ((e.clientY - rect.top) / canvasElement.height) * 100
       );
 
+      console.log("e.clientX: ", e.clientX);
+      console.log("e.clientY: ", e.clientY);
+
       const res = selectedHotSpot.points.filter((point) => {
         let factor = point.width / 4;
         return (
@@ -123,8 +126,6 @@ function ViewPhoto() {
       } else {
         error.play();
       }
-
-      console.log(res.length != 0);
     } catch (error) {
       console.log(error);
     }
@@ -167,6 +168,82 @@ function ViewPhoto() {
     }
   };
 
+  const drawRect = () => {
+    const canvasElement = canvasRef.current;
+    const ctx = canvasElement.getContext("2d");
+    const rect = canvasElement.getBoundingClientRect();
+
+    for (const hotspot of hotspots) {
+        const Xleft = hotspot.points.reduce((min, obj) => Math.min(min, obj.x), hotspot.points[0].x);
+        const Xright = hotspot.points.reduce((max, obj) => Math.max(max, obj.x), hotspot.points[0].x);
+        const Yup = hotspot.points.reduce((min, obj) => Math.min(min, obj.y), hotspot.points[0].y);
+        const Ydown = hotspot.points.reduce((max, obj) => Math.max(max, obj.y), hotspot.points[0].y);
+        const w = hotspot.width; // Assuming width is constant for all points in a hotspot
+
+        // Scale coordinates to fit the canvas
+        const scaledXleft = (Xleft / rect.width) * canvasElement.width;
+        const scaledYup = (Yup / rect.height) * canvasElement.height;
+
+        // Calculate width and height of the rectangle
+        const width = (Xright - Xleft) + w;
+        const height = (Ydown - Yup) + w;
+
+        // Draw the rectangle
+        ctx.beginPath();
+        ctx.rect(scaledXleft, scaledYup, width, height);
+        ctx.lineWidth = "4";
+        ctx.strokeStyle = hotspot.color;
+        ctx.stroke();
+    }
+};
+
+
+  // const drawRect = () => {
+  //   const canvasElement = canvasRef.current;
+  //   const ctx = canvasElement.getContext("2d");
+  //   const rect = canvasElement.getBoundingClientRect();
+
+  //   // const x = Math.floor(
+  //   //   ((obj.x - rect.left) / canvasElement.width) * 100
+  //   // );
+  //   // const y = Math.floor(
+  //   //   ((e.clientY - rect.top) / canvasElement.height) * 100
+  //   // );
+  //   console.log(canvasElement.width);
+  //   console.log(rect.left);
+  //   console.log(rect.top);
+
+  //   for (const hotspot of hotspots) {
+  //     console.log(hotspot);
+  //     const Xleft = hotspot.points.reduce(
+  //       (max, obj) => (obj.x < max ? obj.x : max, hotspot.points[0].x)
+  //     );
+  //     const Xright = hotspot.points.reduce(
+  //       (max, obj) => (obj.x > max ? obj.x : max),
+  //       hotspot.points[0].x
+  //     );
+
+  //     const Yup = hotspot.points.reduce(
+  //       (max, obj) => (obj.y > max ? obj.y : max),
+  //       hotspot.points[0].y
+  //     );
+  //     const Ydown = hotspot.points.reduce(
+  //       (max, obj) => (obj.y < max ? obj.y : max),
+  //       hotspot.points[0].y
+  //     );
+  //     const w = hotspot.points[0].width;
+  //     ctx.beginPath();
+  //     console.log("Xleft: ", (Xleft / 100) * canvasElement.width );
+  //     console.log("Yup: ", Yup);
+  //     console.log("Xright: ", Xright);
+  //     console.log("Ydown: ", Ydown);
+  //     ctx.rect((Xleft / 100) * canvasElement.width , (Yup / 100) * canvasElement.width , Xright - Xleft + (w / 2), Ydown - Yup + (w / 2));
+  //     ctx.lineWidth = "4";
+  //     ctx.strokeStyle = hotspot.color;
+  //     ctx.stroke();
+  //   }
+  // };
+
   return (
     <div className="photoContainerPage" style={{ position: "relative" }}>
       <div id="search-form">
@@ -182,16 +259,17 @@ function ViewPhoto() {
       </div>
       <div className="hotandphoto">
         {photo && (
-          <div
-            className="videoContainercc"
-            // style={{ width: "50%", background: "transparent", display: "flex" }}
-          >
+          // <div className="videoContainercc" style={{ alignItems: "center" }}>
+          <div style={{ alignItems: "center" }}>
             {/* <img src={photo.fileUri} ref={imageRef} alt="" onLoadedData={} /> */}
             <canvas
               ref={canvasRef}
               style={{ cursor: "pointer" }}
               onMouseDown={(e) => handleTouch(e)}
             />
+            <button id="button" onClick={() => drawRect()}>
+              הצג סימונים
+            </button>
           </div>
         )}
         {hotspots && (

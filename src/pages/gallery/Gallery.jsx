@@ -54,13 +54,13 @@ function Gallery() {
   return (
     <div
       style={{
-        height: "100vh",
         width: "100%",
         paddingTop: "100px",
         direction: "rtl",
         paddingRight: "30px",
         paddingLeft: "30px",
       }}
+      className="galleryCont"
     >
       <div className="backB">
         <button

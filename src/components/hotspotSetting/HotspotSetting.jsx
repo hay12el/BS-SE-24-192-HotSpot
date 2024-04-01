@@ -37,6 +37,7 @@ function HotspotSetting({
   const params = useParams();
   const [O_DETECTION, setO_DETECTION] = useState(false);
   const [pred, setPred] = useState(null);
+  const [hotspots, setHotspots] = useState([]);
 
   const handleColorChange = (color) => {
     setSelectedColor(color.hex);
@@ -47,37 +48,30 @@ function HotspotSetting({
     setName(e.target.value);
   };
 
-  const handleSubmit = async () => {
+  const handleHotAdd = () => {
     try {
       // Implement your logic to handle the submitted data (color and name)
+
       if (name == "") {
         alert("הכנס את שם הנקודה");
       } else {
-        var userID = currentUser.uid;
-        const { photoid, studentid } = params;
-        console.log(photoid, studentid);
+        console.log(recordedChunks.current);
         const newUUID = uuidv4();
-        await setDoc(
-          doc(
-            db,
-            `/users/${userID}/students/${studentid}/videos/${photoid}/hotspots`,
-            newUUID
-          ),
-          {
-            // audioUri: it.audioUri, //
-            color: selectedColor,
-            // offsetX: it.offsetX, //
-            // offsetY: it.offsetY, //
-            itemClickCount: 0,
-            success: 0,
-            points: recordedChunks, //
-            timestamp: pausedTime,
-            title: name,
-            id: newUUID,
-          }
-        );
-        alert("הנקודה החמה נוספה בהצלחה");
-        handleClose();
+        const newPoint = {
+          color: selectedColor,
+          itemClickCount: 0,
+          success: 0,
+          points: recordedChunks.current,
+          title: name,
+          id: newUUID,
+        };
+        setHotspots([...hotspots, newPoint]);
+        setSelectedColor("#6A1717");
+        setName("");
+        setTimeout(() => {
+          recordedChunks.current = [];
+        }, 500)
+        console.log(hotspots);
       }
     } catch (error) {
       console.log(error);
@@ -99,6 +93,7 @@ function HotspotSetting({
     setCapturedImage(null);
     setVerticalLines([...verticalLines, (pausedTime / totalTime) * 610]);
     setSquareWidth(30);
+    setHotspots([]);
   };
 
   const hci = () => {
@@ -121,9 +116,8 @@ function HotspotSetting({
     });
   };
   const handlePredictClick = (pred) => {
-    alert("האם תרצה/י לשמור את האוביקט כנקודה חמה?")
-  }
-
+    alert("האם תרצה/י לשמור את האוביקט כנקודה חמה?");
+  };
 
   const handleCanvasDraw = (event) => {
     const canvasElement = canvasRef.current;
@@ -144,6 +138,36 @@ function HotspotSetting({
 
     context.fillRect(x - 15, y - 15, squareWidth, squareWidth);
   };
+
+  const hundleAddHotspots = async () => {
+    try {
+      if (hotspots.length === 0) {
+        alert("לא נוספו נקודות חמות");
+      } else {
+        var userID = currentUser.uid;
+        const { photoid, studentid } = params;
+        console.log(photoid, studentid);
+        const newUUID = uuidv4();
+        await setDoc(
+          doc(
+            db,
+            `/users/${userID}/students/${studentid}/videos/${photoid}/hotspots`,
+            newUUID
+          ),
+          {
+            timestamp: pausedTime,
+            id: newUUID,
+            hotspots: hotspots,
+          }
+        );
+        alert("הנקודה החמה נוספה בהצלחה");
+        handleClose();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <div className="HotspotSettingContaner">
       <span
@@ -186,14 +210,31 @@ function HotspotSetting({
         style={{
           visibility: O_DETECTION ? "hidden" : "visible",
           display: O_DETECTION ? "none" : "flex",
+          alignItems: "center",
         }}
       >
-        <div>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            flexDirection: "column",
+            height: "100%",
+            justifyContent: "space-around",
+          }}
+        >
+          <div className="pointsName">
+            {hotspots.map((h) => {
+              return <div className="hname">{h.title}</div>;
+            })}
+          </div>
           <canvas
             ref={canvasRef}
             style={canvasStyle}
             onMouseDown={handleCanvasDraw}
           ></canvas>
+          <button id="button" onClick={hundleAddHotspots}>
+            הוסף נקודות חמות
+          </button>
         </div>
         <div className="settingsContainer">
           <label>
@@ -227,9 +268,9 @@ function HotspotSetting({
             <button
               id="button"
               style={{ color: "#0a7cae", fontWeight: "600" }}
-              onClick={handleSubmit}
+              onClick={handleHotAdd}
             >
-              הוסף נקודה חמה
+              הוסף נקודה לרשימה
             </button>
             <button
               id="button"
