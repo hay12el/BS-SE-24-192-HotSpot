@@ -4,6 +4,7 @@ import { useAuth } from "../../context/AuthContext";
 import { collection, getDoc, getDocs, query, where } from "firebase/firestore";
 import { db } from "../../firebase";
 import HotspotSettingPhotos from "../../components/hotspotSettingPhotos/HotspotSettingPhotos";
+import { clearAllBodyScrollLocks, disableBodyScroll } from "body-scroll-lock";
 
 function EditPhoto() {
   const [image, SetImage] = useState(null);
@@ -12,10 +13,21 @@ function EditPhoto() {
   const canvasRef = useRef();
   const imgRef = useRef();
   const [hotspot, setHotspot] = useState(false);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const containerRef = useRef(null);
+
+  const isiPad = () => {
+    const userAgent = navigator.userAgent.toLowerCase();
+    return /ipad/.test(userAgent);
+  };
 
   useEffect(() => {
     getData();
+    disableBodyScroll(containerRef);
+
+    return () => {
+      clearAllBodyScrollLocks();
+    };
   }, []);
 
   const getData = async () => {
@@ -39,13 +51,15 @@ function EditPhoto() {
       const canvasElement = canvasRef.current;
       const screenWidth = window.screen.width;
       // setHotspot(true);
-       if (screenWidth > 600) {
-      canvasElement.width = screenWidth / 2;
-      canvasElement.height = canvasElement.width * (imgRef.current.height / imgRef.current.width);
-    } else {
-      canvasElement.width = screenWidth - 20;
-      canvasElement.height = canvasElement.width * (imgRef.current.height / imgRef.current.width);
-    }
+      if (screenWidth > 600) {
+        canvasElement.width = screenWidth / 2;
+        canvasElement.height =
+          canvasElement.width * (imgRef.current.height / imgRef.current.width);
+      } else {
+        canvasElement.width = screenWidth - 20;
+        canvasElement.height =
+          canvasElement.width * (imgRef.current.height / imgRef.current.width);
+      }
       // canvasElement.width = imgRef.current.width;
       // canvasElement.height = imgRef.current.height;
 
@@ -64,6 +78,7 @@ function EditPhoto() {
   };
   return (
     <div
+      ref={containerRef}
       style={{
         height: "100vh",
         width: "100%",
@@ -71,19 +86,19 @@ function EditPhoto() {
         direction: "rtl",
         paddingRight: "30px",
         paddingLeft: "30px",
-        position: "relative"
+        position: "relative",
       }}
     >
       <div className="backB">
         <button id="button" onClick={() => navigate(-1)}>
-        <span className="glyphicon glyphicon-arrow-left"/> חזרה לגלריה
+          <span className="glyphicon glyphicon-arrow-left" /> חזרה לגלריה
         </button>
       </div>
       {image && (
         <div className="videoContainer">
           <div
             className="videoContainer"
-             style={{ display: hotspot ? "none" : "flex" }}
+            style={{ display: hotspot ? "none" : "flex" }}
             // style={{ display: "flex" }}
           >
             <img
@@ -111,6 +126,7 @@ function EditPhoto() {
               capturedImage={image.fileUri}
               canvasRef={canvasRef}
               setHotspot={setHotspot}
+              imgRef={imgRef}
             />
           </div>
         </div>

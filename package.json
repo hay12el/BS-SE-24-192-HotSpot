@@ -10,6 +10,7 @@
     "@tensorflow/tfjs-converter": "^2.8.6",
     "@tensorflow/tfjs-core": "^2.8.6",
     "axios": "^1.6.7",
+    "body-scroll-lock": "^4.0.0-beta.0",
     "firebase": "^10.8.1",
     "image-data-uri": "^2.0.1",
     "react": "^18.2.0",

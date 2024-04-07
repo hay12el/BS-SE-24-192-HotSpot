@@ -14,6 +14,11 @@ import { db } from "../../firebase";
 import "./ViewPhoto.css";
 import success1 from "../../assets/audio/success.mp3";
 import error1 from "../../assets/audio/error.mp3";
+import {
+  disableBodyScroll,
+  enableBodyScroll,
+  clearAllBodyScrollLocks,
+} from "body-scroll-lock";
 
 function ViewPhoto() {
   const params = useParams();
@@ -32,6 +37,7 @@ function ViewPhoto() {
 
   useEffect(() => {
     fetchData();
+
     return () => {};
   }, []);
 
@@ -49,17 +55,14 @@ function ViewPhoto() {
       var DPR = window.devicePixelRatio;
       w = Math.round(DPR * w);
       h = Math.round(DPR * h);
-      console.log(screenWidth);
 
       if (screenWidth > 600) {
-        canvasElement.width = w / 2;
+        canvasElement.width = screenWidth / 2;
         canvasElement.height = canvasElement.width * (img.height / img.width);
       } else {
-        canvasElement.width = w - 20;
+        canvasElement.width = screenWidth - 20;
         canvasElement.height = canvasElement.width * (img.height / img.width);
       }
-      // canvasElement.width = img.width;
-      // canvasElement.height = img.height;
       const context = canvasElement.getContext("2d");
       context.drawImage(img, 0, 0, canvasElement.width, canvasElement.height);
     }
@@ -101,30 +104,65 @@ function ViewPhoto() {
 
   const handleTouch = (e) => {
     try {
+      // try {
+      //   const canvasElement = canvasRef.current;
+      //   const rect = canvasElement.getBoundingClientRect();
+  
+      //   const x = Math.floor(
+      //     ((e.clientX - rect.left) / canvasElement.width) * 100
+      //   );
+      //   const y = Math.floor(
+      //     ((e.clientY - rect.top) / canvasElement.height) * 100
+      //   );
+  
+      //   const res = selectedHotSpot.points.filter((point) => {
+      //     let factor = point.width / 4;
+      //     return (
+      //       Math.floor(point.x + factor) > x &&
+      //       Math.floor(point.x - factor) < x &&
+      //       Math.floor(point.y + factor) > y &&
+      //       Math.floor(point.y - factor) < y
+      //     );
+      //   });
+  
+      //   setClicks(clicks + 1);
+      //   if (res.length != 0) {
+      //     setSuccesses(successes + 1);
+      //     success.play();
+      //   } else {
+      //     error.play();
+      //   }
+      // } catch (error) {
+      //   console.log(error);
+      // }
       const canvasElement = canvasRef.current;
       const rect = canvasElement.getBoundingClientRect();
+      const ctx = canvasElement.getContext("2d");
 
-      const x = Math.floor(
-        ((e.clientX - rect.left) / canvasElement.width) * 100
-      );
-      const y = Math.floor(
-        ((e.clientY - rect.top) / canvasElement.height) * 100
-      );
+      const x = Math.floor(e.clientX - rect.left);
+      const y = Math.floor(e.clientY - rect.top);
 
-      const res = selectedHotSpot.points.filter((point) => {
-        let factor = point.width / 4;
-        return (
-          Math.floor(point.x + factor) > x &&
-          Math.floor(point.x - factor) < x &&
-          Math.floor(point.y + factor) > y &&
-          Math.floor(point.y - factor) < y
+      // ctx.beginPath();
+      var path = new Path2D();
+
+      // Define the path based on the points of the hotspot
+      path.moveTo(
+        (selectedHotSpot.points[0].x / 100) * canvasElement.width,
+        (selectedHotSpot.points[0].y / 100) * canvasElement.height
+      );
+      for (let i = 1; i < selectedHotSpot.points.length; i++) {
+        path.lineTo(
+          (selectedHotSpot.points[i].x / 100) * canvasElement.width,
+          (selectedHotSpot.points[i].y / 100) * canvasElement.height
         );
-      });
-
+      }
+      path.closePath(); // Close the path
+      // Check if the clicked point is inside the drawn shape
       setClicks(clicks + 1);
-      if (res.length != 0) {
+      if (ctx.isPointInPath(path, x, y, "evenodd")) {
         setSuccesses(successes + 1);
         success.play();
+        // return; // Exit the loop since we found the matching shape
       } else {
         error.play();
       }
@@ -175,15 +213,6 @@ function ViewPhoto() {
     const ctx = canvasElement.getContext("2d");
     const rect = canvasElement.getBoundingClientRect();
 
-    // const x = Math.floor(
-    //   ((obj.x - rect.left) / canvasElement.width) * 100
-    // );
-    // const y = Math.floor(
-    //   ((e.clientY - rect.top) / canvasElement.height) * 100
-    // );
-    console.log("canvasElement.width: ", canvasElement.width);
-    console.log("canvasElement.height: ", canvasElement.height);
-
     for (const hotspot of hotspots) {
       const Xleft = hotspot.points.reduce(
         (max, obj) => (obj.x < max ? obj.x : max, hotspot.points[0].x)
@@ -207,18 +236,8 @@ function ViewPhoto() {
         right = (Xright / 100) * canvasElement.width,
         down = (Yup / 100) * canvasElement.height,
         up = (Ydown / 100) * canvasElement.height;
-      console.log(hotspot.title);
-      console.log("left: ", left);
-      console.log("up: ", up);
-      console.log("right: ", right);
-      console.log("down: ", down);
       // ctx.rect(295, 30, 100, 100);
-      ctx.rect(
-        left - (w),
-        up - (w / 2),
-        right - left + (w * 2),
-        down - up + (w * 2)
-      );
+      ctx.rect(left - w, up - w / 2, right - left + w * 2, down - up + w * 2);
       // ctx.rect(
       //   left - w / 2,
       //   up - w / 2,
@@ -231,8 +250,33 @@ function ViewPhoto() {
     }
   };
 
+  // new!
+  const redrawLines = () => {
+    const canvasElement = canvasRef.current;
+    const context = canvasElement.getContext("2d");
+
+    for (const hotspot of hotspots) {
+      context.strokeStyle = hotspot.color;
+      context.lineWidth = hotspot.lineWidth;
+      for (let i = 1; i < hotspot.points.length; i++) {
+        const startX = (hotspot.points[i - 1].x / 100) * canvasElement.width;
+        const startY = (hotspot.points[i - 1].y / 100) * canvasElement.height;
+        const endX = (hotspot.points[i].x / 100) * canvasElement.width;
+        const endY = (hotspot.points[i].y / 100) * canvasElement.height;
+
+        context.beginPath();
+        context.moveTo(startX, startY);
+        context.lineTo(endX, endY);
+        context.stroke();
+      }
+    }
+  };
+
   return (
-    <div className="photoContainerPage" style={{ position: "relative" }}>
+    <div
+      className="photoContainerPage"
+      style={{ position: "relative" }}
+    >
       <div id="search-form">
         <div id="header">
           <h1>נקודות חמות</h1>
@@ -261,9 +305,12 @@ function ViewPhoto() {
               style={{ cursor: "pointer" }}
               onMouseDown={(e) => handleTouch(e)}
             />
-            <button id="button" onClick={() => drawRect()}>
+            <button id="button" onClick={() => redrawLines()}>
               הצג סימונים
             </button>
+            {/* <button id="button" onClick={() => drawRect()}>
+              הצג סימונים
+            </button> */}
           </div>
         )}
         {hotspots && (

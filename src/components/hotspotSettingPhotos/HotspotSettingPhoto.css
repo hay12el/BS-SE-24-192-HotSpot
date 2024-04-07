@@ -10,11 +10,11 @@
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
 }
 
-.settingsContainer label {
+.settingsContainer > label {
     gap: 10px;
     display: flex;
     flex-direction: row;
-    justify-content:space-between;
+    justify-content:center;
     align-items: center;
     direction: rtl;
 }
