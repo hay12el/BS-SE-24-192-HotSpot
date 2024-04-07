@@ -89,6 +89,7 @@ function Gallery() {
                     src={v.videoUri}
                     style={{
                       height: "100%",
+                      maxHeight: "150px",
                       borderTopLeftRadius: "8px",
                       borderTopRightRadius: "8px",
                     }}

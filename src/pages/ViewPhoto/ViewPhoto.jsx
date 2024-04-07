@@ -43,14 +43,19 @@ function ViewPhoto() {
       img.src = photo.fileUri;
       img.ref = imageRef;
 
-      const screenHeight = window.screen.height;
       const screenWidth = window.screen.width;
+      var w = window.screen.width;
+      var h = window.screen.height;
+      var DPR = window.devicePixelRatio;
+      w = Math.round(DPR * w);
+      h = Math.round(DPR * h);
+      console.log(screenWidth);
 
       if (screenWidth > 600) {
-        canvasElement.width = screenWidth / 2;
+        canvasElement.width = w / 2;
         canvasElement.height = canvasElement.width * (img.height / img.width);
       } else {
-        canvasElement.width = screenWidth - 20;
+        canvasElement.width = w - 20;
         canvasElement.height = canvasElement.width * (img.height / img.width);
       }
       // canvasElement.width = img.width;
@@ -105,9 +110,6 @@ function ViewPhoto() {
       const y = Math.floor(
         ((e.clientY - rect.top) / canvasElement.height) * 100
       );
-
-      console.log("e.clientX: ", e.clientX);
-      console.log("e.clientY: ", e.clientY);
 
       const res = selectedHotSpot.points.filter((point) => {
         let factor = point.width / 4;
@@ -173,76 +175,61 @@ function ViewPhoto() {
     const ctx = canvasElement.getContext("2d");
     const rect = canvasElement.getBoundingClientRect();
 
+    // const x = Math.floor(
+    //   ((obj.x - rect.left) / canvasElement.width) * 100
+    // );
+    // const y = Math.floor(
+    //   ((e.clientY - rect.top) / canvasElement.height) * 100
+    // );
+    console.log("canvasElement.width: ", canvasElement.width);
+    console.log("canvasElement.height: ", canvasElement.height);
+
     for (const hotspot of hotspots) {
-        const Xleft = hotspot.points.reduce((min, obj) => Math.min(min, obj.x), hotspot.points[0].x);
-        const Xright = hotspot.points.reduce((max, obj) => Math.max(max, obj.x), hotspot.points[0].x);
-        const Yup = hotspot.points.reduce((min, obj) => Math.min(min, obj.y), hotspot.points[0].y);
-        const Ydown = hotspot.points.reduce((max, obj) => Math.max(max, obj.y), hotspot.points[0].y);
-        const w = hotspot.width; // Assuming width is constant for all points in a hotspot
+      const Xleft = hotspot.points.reduce(
+        (max, obj) => (obj.x < max ? obj.x : max, hotspot.points[0].x)
+      );
+      const Xright = hotspot.points.reduce(
+        (max, obj) => (obj.x > max ? obj.x : max),
+        hotspot.points[0].x
+      );
 
-        // Scale coordinates to fit the canvas
-        const scaledXleft = (Xleft / rect.width) * canvasElement.width;
-        const scaledYup = (Yup / rect.height) * canvasElement.height;
-
-        // Calculate width and height of the rectangle
-        const width = (Xright - Xleft) + w;
-        const height = (Ydown - Yup) + w;
-
-        // Draw the rectangle
-        ctx.beginPath();
-        ctx.rect(scaledXleft, scaledYup, width, height);
-        ctx.lineWidth = "4";
-        ctx.strokeStyle = hotspot.color;
-        ctx.stroke();
+      const Yup = hotspot.points.reduce(
+        (max, obj) => (obj.y > max ? obj.y : max),
+        hotspot.points[0].y
+      );
+      const Ydown = hotspot.points.reduce(
+        (max, obj) => (obj.y < max ? obj.y : max),
+        hotspot.points[0].y
+      );
+      const w = hotspot.points[0].width;
+      ctx.beginPath();
+      const left = (Xleft / 100) * canvasElement.width,
+        right = (Xright / 100) * canvasElement.width,
+        down = (Yup / 100) * canvasElement.height,
+        up = (Ydown / 100) * canvasElement.height;
+      console.log(hotspot.title);
+      console.log("left: ", left);
+      console.log("up: ", up);
+      console.log("right: ", right);
+      console.log("down: ", down);
+      // ctx.rect(295, 30, 100, 100);
+      ctx.rect(
+        left - (w),
+        up - (w / 2),
+        right - left + (w * 2),
+        down - up + (w * 2)
+      );
+      // ctx.rect(
+      //   left - w / 2,
+      //   up - w / 2,
+      //   right - left + w / 2,
+      //   down - up + w / 2
+      // );
+      ctx.lineWidth = "4";
+      ctx.strokeStyle = hotspot.color;
+      ctx.stroke();
     }
-};
-
-
-  // const drawRect = () => {
-  //   const canvasElement = canvasRef.current;
-  //   const ctx = canvasElement.getContext("2d");
-  //   const rect = canvasElement.getBoundingClientRect();
-
-  //   // const x = Math.floor(
-  //   //   ((obj.x - rect.left) / canvasElement.width) * 100
-  //   // );
-  //   // const y = Math.floor(
-  //   //   ((e.clientY - rect.top) / canvasElement.height) * 100
-  //   // );
-  //   console.log(canvasElement.width);
-  //   console.log(rect.left);
-  //   console.log(rect.top);
-
-  //   for (const hotspot of hotspots) {
-  //     console.log(hotspot);
-  //     const Xleft = hotspot.points.reduce(
-  //       (max, obj) => (obj.x < max ? obj.x : max, hotspot.points[0].x)
-  //     );
-  //     const Xright = hotspot.points.reduce(
-  //       (max, obj) => (obj.x > max ? obj.x : max),
-  //       hotspot.points[0].x
-  //     );
-
-  //     const Yup = hotspot.points.reduce(
-  //       (max, obj) => (obj.y > max ? obj.y : max),
-  //       hotspot.points[0].y
-  //     );
-  //     const Ydown = hotspot.points.reduce(
-  //       (max, obj) => (obj.y < max ? obj.y : max),
-  //       hotspot.points[0].y
-  //     );
-  //     const w = hotspot.points[0].width;
-  //     ctx.beginPath();
-  //     console.log("Xleft: ", (Xleft / 100) * canvasElement.width );
-  //     console.log("Yup: ", Yup);
-  //     console.log("Xright: ", Xright);
-  //     console.log("Ydown: ", Ydown);
-  //     ctx.rect((Xleft / 100) * canvasElement.width , (Yup / 100) * canvasElement.width , Xright - Xleft + (w / 2), Ydown - Yup + (w / 2));
-  //     ctx.lineWidth = "4";
-  //     ctx.strokeStyle = hotspot.color;
-  //     ctx.stroke();
-  //   }
-  // };
+  };
 
   return (
     <div className="photoContainerPage" style={{ position: "relative" }}>
@@ -260,7 +247,14 @@ function ViewPhoto() {
       <div className="hotandphoto">
         {photo && (
           // <div className="videoContainercc" style={{ alignItems: "center" }}>
-          <div style={{ alignItems: "center" }}>
+          <div
+            style={{
+              alignItems: "center",
+              display: "flex",
+              flexDirection: "column",
+              gap: "10px",
+            }}
+          >
             {/* <img src={photo.fileUri} ref={imageRef} alt="" onLoadedData={} /> */}
             <canvas
               ref={canvasRef}
