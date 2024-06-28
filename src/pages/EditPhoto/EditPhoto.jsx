@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { collection, getDoc, getDocs, query, where } from "firebase/firestore";
+import { collection, deleteDoc, doc, getDoc, getDocs, query, where } from "firebase/firestore";
 import { db } from "../../firebase";
 import HotspotSettingPhotos from "../../components/hotspotSettingPhotos/HotspotSettingPhotos";
 import { clearAllBodyScrollLocks, disableBodyScroll } from "body-scroll-lock";
@@ -13,6 +13,7 @@ function EditPhoto() {
   const canvasRef = useRef();
   const imgRef = useRef();
   const [hotspot, setHotspot] = useState(false);
+  const [HotSpots, setHotspots] = useState(null);
   const navigate = useNavigate();
   const containerRef = useRef(null);
 
@@ -40,6 +41,18 @@ function EditPhoto() {
         collection(db, `users/${userID}/students/${studentID}/photos`),
         where("id", "==", photoId)
       );
+
+      const HotspotDocRef = query(
+        collection(
+          db,
+          `users/${userID}/students/${params.studentid}/photos/${photoId}/hotspots`
+        )
+      );
+
+      // get video's hotspots
+      const HotSpotsDocs = await getDocs(HotspotDocRef);
+      const Hotspots = HotSpotsDocs.docs.map((h) => h.data());
+      setHotspots(Hotspots);
       const photo = await getDocs(photoQuery);
       SetImage(photo.docs[0].data());
     } catch (error) {
@@ -50,9 +63,12 @@ function EditPhoto() {
     try {
       const canvasElement = canvasRef.current;
       const screenWidth = window.screen.width;
+
+      console.log(screenWidth);
+
       // setHotspot(true);
       if (screenWidth > 600) {
-        canvasElement.width = screenWidth / 2;
+        canvasElement.width = screenWidth * (9/10);
         canvasElement.height =
           canvasElement.width * (imgRef.current.height / imgRef.current.width);
       } else {
@@ -76,6 +92,37 @@ function EditPhoto() {
       console.log(error);
     }
   };
+
+  const deleteHotspot = async (elementId) => {
+    try {
+      if (window.confirm("האם למחוק את הנקודה החמה הזו?")) {
+        var userID = currentUser.uid;
+        const studentID = params.studentid;
+        const photoId = params.photoid;
+
+        const HotspotDocRef = doc(
+          db,
+          `users/${userID}/students/${studentID}/photos/${photoId}/hotspots/${elementId}`
+        );
+
+        await deleteDoc(HotspotDocRef);
+
+        const HotspotsDocRef = query(
+          collection(
+            db,
+            `users/${userID}/students/${studentID}/photos/${photoId}/hotspots`
+          )
+        );
+
+        // get photo's hotspots
+        const HotSpotsDocs = await getDocs(HotspotsDocRef);
+        const Hotspots = HotSpotsDocs.docs.map((h) => h.data());
+        setHotspots(Hotspots);
+      }
+    } catch (error) {
+      alert(error.message);
+    }
+  };
   return (
     <div
       ref={containerRef}
@@ -83,15 +130,18 @@ function EditPhoto() {
         height: "100vh",
         width: "100%",
         paddingTop: "100px",
+        display: "flex",
         direction: "rtl",
+        flexDirection: "row",
         paddingRight: "30px",
         paddingLeft: "30px",
         position: "relative",
+        justifyContent: "space-around"
       }}
     >
-      <div className="backB">
+      <div className="backB" style={{top:70, right: 10}}>
         <button id="button" onClick={() => navigate(-1)}>
-          <span className="glyphicon glyphicon-arrow-left" /> חזרה לגלריה
+          חזרה לגלריה <span className="glyphicon glyphicon-arrow-left" />
         </button>
       </div>
       {image && (
@@ -99,29 +149,20 @@ function EditPhoto() {
           <div
             className="videoContainer"
             style={{ display: hotspot ? "none" : "flex" }}
-            // style={{ display: "flex" }}
           >
             <img
               src={image.fileUri}
               alt=""
               ref={imgRef}
-              style={{ width: "80%" }}
+              style={{ maxHeight: "60vh", maxWidth: "80vw", minWidth: "80vh" }}
             />
-            {/* Added line */}
             <div className="buttons">
-              {/* <button id="button" onClick={handlePlayPause}>
-             Play/Pause
-           </button>
-           <button id="button" onClick={handleStop}>
-             Stop
-           </button> */}
               <button id="button" onClick={handleCaptureImage}>
                 הוספת נקודה חמה
               </button>
             </div>
           </div>
           <div style={{ display: !hotspot ? "none" : "flex" }}>
-            {/* <div> */}
             <HotspotSettingPhotos
               capturedImage={image.fileUri}
               canvasRef={canvasRef}
@@ -131,34 +172,42 @@ function EditPhoto() {
           </div>
         </div>
       )}
-      {/* <div className="settingsContainer">
-        <label>
-          <h4>כותרת:</h4>
-          <input type="text" value={name} onChange={handleNameChange} />
-        </label>
-
-        <br />
-        <label>
-          <h4>בחר צבע:</h4>
-          <ChromePicker color={selectedColor} onChange={handleColorChange} />
-        </label>
-
-        <br />
-        <div className="buttons">
-          <button id="button" onClick={removeLastSquare}>
-            <span class="glyphicon glyphicon-repeat"></span>
-          </button>
-          <button
-            id="button"
-            style={{ color: "#0a7cae", fontWeight: "600" }}
-            onClick={handleSubmit}
-          >
-            הוסף נקודה חמה
-          </button>
-        </div>
-      </div> */}
+      {HotSpots && (
+        <table style={{height:"min-content"}}>
+          <tr>
+            <th style={headerStyle}>זמן הצגת הנקודות</th>
+            <th style={headerStyle}>מחיקת הנקודות החמות</th>
+          </tr>
+          {HotSpots.map((h, key) => {
+            return (
+              <tr>
+                <td style={{ cursor: "default" }}>
+                  <h4>{h.title}</h4>
+                </td>
+                <td style={{ cursor: "default" }}>
+                  <span
+                    class="glyphicon glyphicon-trash"
+                    onClick={() => deleteHotspot(h.id)}
+                    style={{
+                      color: "red",
+                      cursor: "pointer",
+                    }}
+                  ></span>
+                </td>
+              </tr>
+            );
+          })}
+        </table>
+      )}
     </div>
   );
 }
 
 export default EditPhoto;
+
+const headerStyle = {
+  paddingLeft: "7px",
+  paddingRight: "7px",
+  textAlign: "center",
+  direction: "rtl",
+};

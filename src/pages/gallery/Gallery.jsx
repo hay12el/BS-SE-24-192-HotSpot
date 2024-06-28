@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { CheckAuth } from "../../hooks/hooks";
 import { useAuth } from "../../context/AuthContext";
-import { db } from "../../firebase";
+import { db, storage } from "../../firebase";
 import "./Gallery.css";
 import {
   collection,
@@ -12,7 +12,9 @@ import {
   onSnapshot,
   query,
   where,
+  deleteDoc,
 } from "firebase/firestore";
+import { deleteObject, ref } from "firebase/storage";
 
 function Gallery() {
   const navigate = useNavigate();
@@ -51,6 +53,45 @@ function Gallery() {
     const thePhotos = thePhotosDocs.docs.map((p) => p.data());
     setPhotos(thePhotos);
   };
+
+  const deleteItem = async (type, itemId, url) => {
+    if (window.confirm("האם למחוק את האוביקט המבוקש?")) {
+      let path;
+      const start = url.indexOf("%2F") + 3;
+      const end = url.indexOf("?");
+      var userID = currentUser.uid;
+
+      if (start !== -1 && end !== -1 && start < end) {
+        path = url.substring(start, end);
+      }
+      try {
+        if (type == "videos") {
+          const storageRef = ref(storage, type + "/" + path);
+          const docRef = doc(
+            db,
+            `/users/${userID}/students/${studentID}/${type}`,
+            itemId
+          );
+          await deleteDoc(docRef);
+          await deleteObject(storageRef);
+        } else {
+          const storageRef = ref(storage, type + "/" + path);
+          const docRef = doc(
+            db,
+            `/users/${userID}/students/${studentID}/photos`,
+            itemId
+          );
+          await deleteDoc(docRef);
+          await deleteObject(storageRef);
+        }
+        alert("האויביקט נמחק בהצלחה");
+        window.location.reload(true);
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+  };
+
   return (
     <div
       style={{
@@ -95,7 +136,20 @@ function Gallery() {
                     }}
                     controls={false}
                   ></video>
-                  <div className="desc">{v.title}</div>
+                  <div className="desc" style={{ position: "relative" }}>
+                    <span
+                      class="glyphicon glyphicon-trash"
+                      onClick={() => deleteItem("videos", v.id, v.videoUri)}
+                      style={{
+                        position: "absolute",
+                        top: 15,
+                        right: 15,
+                        color: "red",
+                        cursor: "pointer",
+                      }}
+                    ></span>
+                    {v.title}
+                  </div>
                 </div>
 
                 <div className="buttons buttons_under">
@@ -104,6 +158,7 @@ function Gallery() {
                     onClick={() => navigate(`/editvideo/${v.id}/${studentID}`)}
                   >
                     ערוך סרטון
+                    
                   </button>
                   <button
                     id="button"
@@ -124,8 +179,25 @@ function Gallery() {
             return (
               <div className="hh" key={i}>
                 <div className="gallery">
-                  <img style={{borderRadius: "10px"}} src={p.fileUri} alt="" />
-                  <div className="desc">{p.title}</div>
+                  <img
+                    style={{ borderRadius: "10px" }}
+                    src={p.fileUri}
+                    alt=""
+                  />
+                  <div className="desc" style={{ position: "relative" }}>
+                    <span
+                      class="glyphicon glyphicon-trash"
+                      onClick={() => deleteItem("images", p.id, p.fileUri)}
+                      style={{
+                        position: "absolute",
+                        top: 15,
+                        right: 15,
+                        color: "red",
+                        cursor: "pointer",
+                      }}
+                    ></span>
+                    {p.title}
+                  </div>
                 </div>
 
                 <div className="buttons buttons_under">
@@ -139,7 +211,7 @@ function Gallery() {
                     id="button"
                     onClick={() => navigate(`/ViewPhoto/${p.id}/${studentID}`)}
                   >
-                  צפה בתמונה
+                    צפה בתמונה
                   </button>
                 </div>
               </div>

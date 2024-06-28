@@ -36,7 +36,6 @@ function HotspotSettingPhotos({
   const [O_DETECTION, setO_DETECTION] = useState(false);
   const [pred, setPred] = useState(null);
   const colors = ["red", "blue", "green", "yellow", "orange", "purple"];
-  const [selectedColorC, setSelectedColorC] = useState(null);
 
   // code added!
   const isDrawing = useRef(false);
@@ -208,63 +207,6 @@ function HotspotSettingPhotos({
     );
   };
 
-  // code added
-  // useEffect(() => {
-  //   const canvas = canvasRef.current;
-  //   const context = canvas.getContext("2d");
-
-  //   const startDrawing = ({ offsetX, offsetY }) => {
-  //     if (!isDrawing.current) {
-  //       startX = offsetX;
-  //       startY = offsetY;
-  //       pointsRef.current.push({ x: startX, y: startY });
-  //       isDrawing.current = true;
-  //     }
-  //   };
-
-  //   const drawLine = (x1, y1, x2, y2) => {
-  //     context.beginPath();
-  //     context.moveTo(x1, y1);
-  //     context.lineTo(x2, y2);
-  //     context.stroke();
-  //   };
-
-  //   const draw = ({ offsetX, offsetY }) => {
-  //     if (isDrawing.current) {
-  //       drawLine(startX, startY, offsetX, offsetY);
-  //       startX = offsetX;
-  //       startY = offsetY;
-  //       pointsRef.current.push({ x: startX, y: startY });
-  //     }
-  //   };
-
-  //   const autoComplete = (e) => {
-  //     e.preventDefault(); // Prevent right-click menu
-  //     console.log(isDrawing.current);
-  //     // if (isDrawing.current && pointsRef.current.length > 1) {
-  //     if (pointsRef.current.length > 1) {
-  //       console.log("autocomplite");
-  //       // Connect the last point to the first
-  //       const firstPoint = pointsRef.current[0];
-  //       drawLine(startX, startY, firstPoint.x, firstPoint.y);
-  //       isDrawing.current = false;
-  //       pointsRef.current = [];
-  //     }
-  //   };
-
-  //   canvas.addEventListener("mousedown", startDrawing);
-  //   canvas.addEventListener("mousemove", draw);
-  //   window.addEventListener("mouseup", autoComplete);
-  //   canvas.addEventListener("contextmenu", autoComplete);
-
-  //   return () => {
-  //     canvas.removeEventListener("mousedown", startDrawing);
-  //     canvas.removeEventListener("mousemove", draw);
-  //     window.removeEventListener("mouseup", () => (isDrawing.current = false));
-  //     canvas.removeEventListener("contextmenu", autoComplete);
-  //   };
-  // }, []);
-
   const startDrawing = ({ nativeEvent }) => {
     pointsRef.current = [];
     const canvasElement = canvasRef.current;
@@ -317,9 +259,7 @@ function HotspotSettingPhotos({
     }
   };
 
-  const stopDrawing = () => {
-    isDrawing.current = false;
-  };
+
 
   const getCanvasCoordinates = (event) => {
     const canvas = canvasRef.current;
@@ -430,13 +370,11 @@ function HotspotSettingPhotos({
                 ></div>
               ))}
             </div>
-
-            {/* <ChromePicker color={selectedColor} onChange={handleColorChange} /> */}
           </label>
 
           <br />
           <label>
-            <h4>עובי הריבוע:</h4>
+            <h4>עובי העט:</h4>
             <input
               type="range"
               min="1"
@@ -477,4 +415,5 @@ export default HotspotSettingPhotos;
 const canvasStyle = {
   border: "1px solid #cccccc",
   marginTop: "10px",
+  cursor: "crosshair"
 };

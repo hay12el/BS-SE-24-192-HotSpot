@@ -1,12 +1,23 @@
 import React, { useState, useRef, useEffect } from "react";
 import HotspotSetting from "../hotspotSetting/HotspotSetting";
 import "./VideoComponent.css";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import {
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+} from "firebase/firestore";
+import { db } from "../../firebase";
+import { useAuth } from "../../context/AuthContext";
 
-const VideoComponent = ({ videoUrl, videoObject }) => {
+const VideoComponent = ({ videoUrl, videoObject, hotspots }) => {
   // const [videoUrl, setVideoUrl] = useState(null);
   const [capturedImage, setCapturedImage] = useState(null);
   const [hotspot, setHotspot] = useState(false);
+  const [HotSpots, setHotspots] = useState(null);
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const [pausedTime, setPausedTime] = useState(null);
@@ -14,26 +25,15 @@ const VideoComponent = ({ videoUrl, videoObject }) => {
   const [verticalLines, setVerticalLines] = useState([]);
   const lineCanvasRef = useRef(null);
   const navigate = useNavigate();
+  const params = useParams();
+  const { currentUser } = useAuth();
 
   useEffect(() => {
-    drawVerticalLines();
-  }, [verticalLines]);
-
-  const handlePlayPause = () => {
-    const videoElement = videoRef.current;
-    if (videoElement.paused) {
-      videoElement.play();
-    } else {
-      videoElement.pause();
-      setPausedTime(videoElement.currentTime);
-    }
-  };
-
-  const handleStop = () => {
-    const videoElement = videoRef.current;
-    videoElement.pause();
-    videoElement.currentTime = 0;
-  };
+    setTotalTime(videoRef.current.duration);
+    const lines = hotspots.map((h) => (h.timestamp / totalTime) * 610);
+    drawVerticalLines(lines);
+    setHotspots(hotspots);
+  }, [hotspots]);
 
   const handleCaptureImage = () => {
     try {
@@ -46,6 +46,8 @@ const VideoComponent = ({ videoUrl, videoObject }) => {
 
       canvasElement.width = 640;
       canvasElement.height = 360;
+
+      videoElement.currentTime = Math.floor(videoRef.current.currentTime);
 
       const context = canvasElement.getContext("2d");
       context.drawImage(
@@ -62,10 +64,12 @@ const VideoComponent = ({ videoUrl, videoObject }) => {
     }
   };
 
-  const drawVerticalLines = () => {
+  const drawVerticalLines = (lines) => {
     const lineCanvasElement = lineCanvasRef.current;
     if (lineCanvasElement != null) {
       const context = lineCanvasElement.getContext("2d");
+
+      console.log(lines);
 
       context.clearRect(
         0,
@@ -78,13 +82,43 @@ const VideoComponent = ({ videoUrl, videoObject }) => {
       context.strokeStyle = "black";
       context.lineWidth = 2;
 
-      verticalLines.forEach((x) => {
+      lines.forEach((x) => {
         context.moveTo(x, 0);
         context.lineTo(x, lineCanvasRef.current.height);
       });
 
       context.stroke();
       context.closePath();
+    }
+  };
+
+  const deleteHotspot = async (elementId) => {
+    try {
+      if (window.confirm("האם למחוק את הנקודה החמה הזו?")) {
+        var userID = currentUser.uid;
+        const studentID = params.studentid;
+        const photoId = params.photoid;
+        const HotspotDocRef = doc(
+          db,
+          `users/${userID}/students/${studentID}/videos/${photoId}/hotspots/${elementId}`
+        );
+
+        await deleteDoc(HotspotDocRef);
+
+        const HotspotsDocRef = query(
+          collection(
+            db,
+            `users/${userID}/students/${studentID}/videos/${photoId}/hotspots`
+          )
+        );
+
+        // get video's hotspots
+        const HotSpotsDocs = await getDocs(HotspotsDocRef);
+        const Hotspots = HotSpotsDocs.docs.map((h) => h.data());
+        setHotspots(Hotspots);
+      }
+    } catch (error) {
+      alert(error.message);
     }
   };
 
@@ -101,7 +135,7 @@ const VideoComponent = ({ videoUrl, videoObject }) => {
 
       <div className="backB">
         <button id="button" onClick={() => navigate(-1)}>
-        <span className="glyphicon glyphicon-arrow-left"/> חזרה לגלריה
+          <span className="glyphicon glyphicon-arrow-left" /> חזרה לגלריה
         </button>
       </div>
 
@@ -130,14 +164,8 @@ const VideoComponent = ({ videoUrl, videoObject }) => {
             ></canvas>{" "}
             {/* Added line */}
             <div className="buttons">
-              {/* <button id="button" onClick={handlePlayPause}>
-                Play/Pause
-              </button>
-              <button id="button" onClick={handleStop}>
-                Stop
-              </button> */}
               <button id="button" onClick={handleCaptureImage}>
-              לכידת תמונה
+                לכידת תמונה
               </button>
             </div>
           </div>
@@ -156,16 +184,47 @@ const VideoComponent = ({ videoUrl, videoObject }) => {
           </div>
         </div>
       )}
+      {HotSpots && (
+        <table style={{ width: "90%", height:"min-content" }}>
+          <tr>
+            <th style={headerStyle}>זמן הצגת הנקודות</th>
+            <th style={headerStyle}>נקודות</th>
+            <th style={headerStyle}>מחיקת הנקודות החמות</th>
+          </tr>
+          {HotSpots.map((h, key) => {
+            return (
+              <tr>
+                <td style={{ cursor: "default" }}>
+                  <h4>{h.timestamp.toFixed(2)}</h4>
+                </td>
+                <td
+                  style={{
+                    direction: "rtl",
+                    textAlign: "start",
+                    cursor: "default",
+                  }}
+                >
+                  {h.hotspots.map((hot) => {
+                    return <h4>&#x2022; {hot.title}</h4>;
+                  })}
+                </td>
+                <td style={{ cursor: "default" }}>
+                  <span
+                    class="glyphicon glyphicon-trash"
+                    onClick={() => deleteHotspot(h.id)}
+                    style={{
+                      color: "red",
+                      cursor: "pointer",
+                    }}
+                  ></span>
+                </td>
+              </tr>
+            );
+          })}
+        </table>
+      )}
     </div>
   );
-};
-
-const dropzoneStyle = {
-  border: "2px dashed #cccccc",
-  borderRadius: "4px",
-  padding: "20px",
-  textAlign: "center",
-  cursor: "pointer",
 };
 
 const lineCanvasStyle = {
@@ -173,4 +232,8 @@ const lineCanvasStyle = {
   marginTop: "10px",
 };
 
+const headerStyle = {
+  textAlign: "center",
+  direction: "rtl",
+};
 export default VideoComponent;

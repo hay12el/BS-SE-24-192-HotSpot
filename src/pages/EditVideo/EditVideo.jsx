@@ -11,6 +11,7 @@ function EditVideo() {
   const [video, SetVideo] = useState(null);
   const [videos, SetVideos] = useState(null);
   const [videoObject, SetvideoObject] = useState(null);
+  const [hotspots, setHotspots] = useState(null);
   const params = useParams();
   const { currentUser } = useAuth();
 
@@ -27,7 +28,7 @@ function EditVideo() {
           const videoObjectURL = URL.createObjectURL(blob);
           console.log(videoObjectURL);
           SetVideo(videoObjectURL);
-          console.log("video: ",video);
+          console.log("video: ", video);
         })
         .catch((error) => console.log(error));
     }
@@ -38,6 +39,19 @@ function EditVideo() {
       var userID = currentUser.uid;
       const studentID = params.studentid;
       const photoId = params.photoid;
+
+      // get hotspots
+      const HotspotDocRef = query(
+        collection(
+          db,
+          `users/${userID}/students/${params.studentid}/videos/${photoId}/hotspots`
+        )
+      );
+
+      // get video's hotspots
+      const HotSpotsDocs = await getDocs(HotspotDocRef);
+      const Hotspots = HotSpotsDocs.docs.map(h => h.data())
+      setHotspots(Hotspots)
 
       //getVideos
       const photoQuery = query(
@@ -62,9 +76,7 @@ function EditVideo() {
         paddingLeft: "30px",
       }}
     >
-      {video && (
-        <VideoComponent videoUrl={video} videoObject={videoObject} />
-      )}
+      {video && <VideoComponent videoUrl={video} videoObject={videoObject} hotspots={hotspots}/>}
     </div>
   );
 }

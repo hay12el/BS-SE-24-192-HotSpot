@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import success1 from "../../assets/audio/success.mp3";
 import error1 from "../../assets/audio/error.mp3";
 import "./HotSpotPic.css";
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, query, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 import { useAuth } from "../../context/AuthContext";
 import { useParams } from "react-router-dom";
@@ -23,9 +23,9 @@ function HotSpotPic({
   const [selectedOption, setSelectedOption] = useState(-1);
   const [selectedHotSpot, setSelectedHotSpot] = useState(null);
   const [hotspots, setHotspots] = useState(null);
+  const [showLines, setShowLines] = useState(false);
 
   useEffect(() => {
-    console.log(hotspot);
     setClicks(hotspot.itemClickCount);
     setSuccesses(hotspot.success);
   }, [hotspotIndicator]);
@@ -33,58 +33,36 @@ function HotSpotPic({
   const handleCanvasTouch = (event) => {
     const canvasElement = canvasRef.current;
     const rect = canvasElement.getBoundingClientRect();
-    const x = Math.floor(event.clientX - rect.left);
-    const y = Math.floor(event.clientY - rect.top);
+    const ctx = canvasElement.getContext("2d");
 
-    const hotspot = selectedHotSpot;
+    if (selectedHotSpot != null) {
+      const x = Math.floor(event.clientX - rect.left);
+      const y = Math.floor(event.clientY - rect.top);
 
-    if (hotspot) {
-      let factor = 30;
-      const res = hotspot.points.filter((point) => {
-        return (
-          Math.floor(point.x + factor) > x &&
-          Math.floor(point.x - factor) < x &&
-          Math.floor(point.y + factor) > y &&
-          Math.floor(point.y - factor) < y
+      var path = new Path2D();
+
+      // Define the path based on the points of the hotspot
+      path.moveTo(
+        (selectedHotSpot.points[0].x / 100) * canvasElement.width,
+        (selectedHotSpot.points[0].y / 100) * canvasElement.height
+      );
+      for (let i = 1; i < selectedHotSpot.points.length; i++) {
+        path.lineTo(
+          (selectedHotSpot.points[i].x / 100) * canvasElement.width,
+          (selectedHotSpot.points[i].y / 100) * canvasElement.height
         );
-      });
+      }
+      path.closePath(); // Close the path
+
       setClicks(clicks + 1);
-      if (res.length != 0) {
+      if (ctx.isPointInPath(path, x, y, "evenodd")) {
         setSuccesses(successes + 1);
         success.play();
       } else {
         error.play();
       }
-    }
-  };
-
-  const drawRect = (hotspots) => {
-    const canvasElement = canvasRef.current;
-    const ctx = canvasElement.getContext("2d");
-
-    for (const hotspot of hotspots) {
-      const Xleft = hotspot.points.reduce(
-        (max, obj) => (obj.x < max ? obj.x : max),
-        hotspot.points[0].x
-      );
-      const Xright = hotspot.points.reduce(
-        (max, obj) => (obj.x > max ? obj.x : max),
-        hotspot.points[0].x
-      );
-      const Yup = hotspot.points.reduce(
-        (max, obj) => (obj.y < max ? obj.y : max),
-        hotspot.points[0].y
-      );
-      const Ydown = hotspot.points.reduce(
-        (max, obj) => (obj.y > max ? obj.y : max),
-        hotspot.points[0].y
-      );
-      const w = hotspot.points[0].width;
-      ctx.beginPath();
-      ctx.rect(Xleft - w / 2, Yup, Xright - Xleft + w / 2, Ydown - Yup + w / 2);
-      ctx.lineWidth = "4";
-      ctx.strokeStyle = hotspot.color;
-      ctx.stroke();
+    } else {
+      alert("נא לבחור נקודה חמה");
     }
   };
 
@@ -99,26 +77,61 @@ function HotSpotPic({
     try {
       const docRef = doc(
         db,
-        `users/${currentUser.uid}/students/${params.studentid}/photos/${params.photoid}/hotspots/`,
-        selectedHotSpot.id
+        `users/${currentUser.uid}/students/${params.studentid}/videos/${params.videoid}/hotspots/${hotspot.id}`
       );
-      await updateDoc(docRef, { success: successes, itemClickCount: clicks });
+      const docSnap = await getDoc(docRef);
 
-      const newArray = [...hotspots];
-      // Find the object you want to update (e.g., based on its ID)
-      const index = newArray.findIndex(
-        (item) => item.id === selectedHotSpot.id
-      );
-      if (index !== -1) {
-        // Update the property of the object
-        newArray[index] = {
-          ...newArray[index],
-          success: successes,
-          itemClickCount: clicks,
-        };
-        // Update the state with the new array
-        setHotspots(newArray);
+      if (docSnap.exists()) {
+        let data = docSnap.data();
+        let hotspotArray = data.hotspots; // Get the array
+
+        const indexToUpdate = hotspotArray.findIndex(
+          (item) => item.id === selectedHotSpot.id
+        );
+
+        // Check if index is within bounds
+        if (indexToUpdate >= 0 && indexToUpdate < hotspotArray.length) {
+          // Update the specific element in the array
+          hotspotArray[indexToUpdate] = {
+            ...hotspotArray[indexToUpdate],
+            success: successes,
+            itemClickCount: clicks,
+          };
+
+          console.log(hotspotArray);
+
+          // Update the document with the modified array
+          await updateDoc(docRef, {
+            ['hotspots']: hotspotArray,
+          });
+
+          console.log("Document successfully updated!");
+        } else {
+          console.log("Index out of range!");
+        }
+      } else {
+        console.log("No such document!");
       }
+
+      // selectedHotSpot.id
+
+      // await updateDoc(docRef, { success: successes, itemClickCount: clicks });
+
+      // const newArray = [...hotspots];
+      // // Find the object you want to update (e.g., based on its ID)
+      // const index = newArray.findIndex(
+      //   (item) => item.id === selectedHotSpot.id
+      // );
+      // if (index !== -1) {
+      //   // Update the property of the object
+      //   newArray[index] = {
+      //     ...newArray[index],
+      //     success: successes,
+      //     itemClickCount: clicks,
+      //   };
+      //   // Update the state with the new array
+      //   setHotspots(newArray);
+      // }
       alert("תוצאות נשמרו בהצלחה!");
     } catch (error) {
       console.log(error);
@@ -127,12 +140,6 @@ function HotSpotPic({
 
   const handleClose = async () => {
     try {
-      const docRef = doc(
-        db,
-        `users/${currentUser.uid}/students/${params.studentid}/videos/${params.videoid}/hotspots/`,
-        hotspot.id
-      );
-      await updateDoc(docRef, { success: successes, itemClickCount: clicks });
       setHotspot(false);
       if (videoRef) {
         videoRef.current.currentTime = Math.floor(hotspot.timestamp) + 1.5;
@@ -144,6 +151,65 @@ function HotSpotPic({
       if (videoRef) {
         videoRef.current.currentTime = Math.floor(hotspot.timestamp) + 1.5;
         videoRef.current.play();
+      }
+    }
+  };
+
+  const changeShowLine = () => {
+    setShowLines(!showLines);
+  };
+
+  const removeLines = () => {
+    console.log("remove");
+    try {
+      const videoElement = videoRef.current;
+      const canvasElement = canvasRef.current;
+
+      canvasElement.width = 640;
+      canvasElement.height = 360;
+
+      // console.log("videoElement.currentTime: ", videoElement.currentTime);
+      // videoElement.currentTime = Math.floor(videoElement.currentTime);
+
+      const context = canvasElement.getContext("2d");
+      context.drawImage(
+        videoElement,
+        0,
+        0,
+        canvasElement.width,
+        canvasElement.height
+      );
+
+      canvasElement.toDataURL("image/png");
+    } catch (error) {
+      console.log(error);
+    }
+    // const img = new Image();
+    // img.src = photo.fileUri;
+    // img.ref = imageRef;
+    // const canvasElement = canvasRef.current;
+    // const context = canvasElement.getContext("2d");
+    // context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+    // context.drawImage(img, 0, 0, canvasElement.width, canvasElement.height);
+  };
+
+  const redrawLines = () => {
+    const canvasElement = canvasRef.current;
+    const context = canvasElement.getContext("2d");
+
+    for (const hot of hotspot.hotspots) {
+      context.strokeStyle = hot.color;
+      context.lineWidth = hot.lineWidth;
+      for (let i = 1; i < hot.points.length; i++) {
+        const startX = (hot.points[i - 1].x / 100) * canvasElement.width;
+        const startY = (hot.points[i - 1].y / 100) * canvasElement.height;
+        const endX = (hot.points[i].x / 100) * canvasElement.width;
+        const endY = (hot.points[i].y / 100) * canvasElement.height;
+
+        context.beginPath();
+        context.moveTo(startX, startY);
+        context.lineTo(endX, endY);
+        context.stroke();
       }
     }
   };
@@ -168,12 +234,28 @@ function HotSpotPic({
             style={canvasStyle}
             onMouseDown={handleCanvasTouch}
           ></canvas>
-          <button id="button" onClick={() => drawRect(hotspot.hotspots)}>
-            הצג סימונים
+          <button
+            id="button"
+            onClick={
+              !showLines
+                ? () => {
+                    changeShowLine();
+                    redrawLines();
+                  }
+                : () => {
+                    changeShowLine();
+                    removeLines();
+                  }
+            }
+          >
+            {!showLines ? "הצג סימונים" : "הסתר סימנים"}
           </button>
         </div>
         {hotspot && (
-          <div className="videoContainercc" style={{ direction: "rtl" }}>
+          <div
+            className="videoContainercc"
+            style={{ direction: "rtl", alignItems: "flex-start" }}
+          >
             {hotspot.hotspots.map((h, key) => {
               return (
                 <label
@@ -205,20 +287,15 @@ function HotSpotPic({
                       }}
                     />
                     <h2>{h.title}</h2>
-                    <div className="touches">
-                      <div className="touch">
-                        <h3>הצלחות</h3>
-                        <h3>
-                          {selectedOption !== key ? h.success : successes}
-                        </h3>
-                      </div>
-                      <div className="touch">
-                        <h3>סך לחיצות</h3>
-                        <h3>
-                          {selectedOption !== key ? h.itemClickCount : clicks}
-                        </h3>
-                      </div>
-                    </div>
+                    {selectedOption === key && (
+                      <button
+                        id="button"
+                        style={{ margin: "10px" }}
+                        onClick={handleSaveResults}
+                      >
+                        שמור תוצאות
+                      </button>
+                    )}
                   </div>
                 </label>
               );
@@ -236,5 +313,3 @@ const canvasStyle = {
   border: "1px solid #cccccc",
   marginTop: "10px",
 };
-
-

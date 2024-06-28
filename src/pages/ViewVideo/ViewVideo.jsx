@@ -5,11 +5,11 @@ import "../gallery/Gallery.css";
 import { collection, doc, getDoc, getDocs, query } from "firebase/firestore";
 import { useNavigate, useParams } from "react-router-dom";
 import HotSpotPic from "../../components/hotspotPic/HotSpotPic";
-import './ViewVideo.css'
+import "./ViewVideo.css";
 
 function ViewVideo() {
   const params = useParams();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const [videoUrl, setVideoUrl] = useState("");
   const [hotspot, setHotspot] = useState(false);
   const [hotspots, setHotspots] = useState(null);
@@ -29,9 +29,7 @@ function ViewVideo() {
 
   useEffect(() => {
     fetchData();
-    return() => {
-      
-    }
+    return () => {};
   }, []);
 
   //   useEffect(() => {
@@ -46,6 +44,8 @@ function ViewVideo() {
       drawVerticalLines(lines);
       const hotspotTime = hotspots.map((h) => Math.round(h.timestamp));
       const handleTimeUpdate = () => {
+        // console.log(videoRef.current);
+
         if (hotspotTime.includes(Math.round(videoRef.current.currentTime))) {
           try {
             const videoElement = videoRef.current;
@@ -53,6 +53,9 @@ function ViewVideo() {
 
             canvasElement.width = 640;
             canvasElement.height = 360;
+            
+            // console.log("videoElement.currentTime: ", videoElement.currentTime);
+            // videoElement.currentTime = Math.floor(videoElement.currentTime);
 
             const context = canvasElement.getContext("2d");
             context.drawImage(
@@ -184,6 +187,7 @@ function ViewVideo() {
       context.closePath();
     }
   };
+
   return (
     <div className="videoContainer" style={{ position: "relative" }}>
       <div id="search-form">
@@ -197,7 +201,7 @@ function ViewVideo() {
 
       <div className="backB">
         <button id="button" onClick={() => navigate(-1)}>
-        <span className="glyphicon glyphicon-arrow-left"/> חזרה לגלריה
+          <span className="glyphicon glyphicon-arrow-left" /> חזרה לגלריה
         </button>
       </div>
 

@@ -34,6 +34,8 @@ function ViewPhoto() {
   const error = new Audio(error1);
   const [clicks, setClicks] = useState(0);
   const [successes, setSuccesses] = useState(0);
+  const [showLines, setShowLines] = useState(false);
+  const [flickering, setFlickering] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -44,6 +46,7 @@ function ViewPhoto() {
   useEffect(() => {
     if (photo) {
       const canvasElement = canvasRef.current;
+      console.log(photo);
 
       const img = new Image();
       img.src = photo.fileUri;
@@ -68,6 +71,24 @@ function ViewPhoto() {
     }
     return () => {};
   }, [photo]);
+
+  const removeLines = () => {
+    const img = new Image();
+    img.src = photo.fileUri;
+    img.ref = imageRef;
+    const canvasElement = canvasRef.current;
+    const context = canvasElement.getContext("2d");
+    context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+    context.drawImage(img, 0, 0, canvasElement.width, canvasElement.height);
+  };
+
+  const changeShowLine = () => {
+    setShowLines(!showLines);
+  };
+
+  const changeFlickering = () => {
+    setFlickering(!flickering);
+  };
 
   const fetchData = async () => {
     try {
@@ -107,14 +128,14 @@ function ViewPhoto() {
       // try {
       //   const canvasElement = canvasRef.current;
       //   const rect = canvasElement.getBoundingClientRect();
-  
+
       //   const x = Math.floor(
       //     ((e.clientX - rect.left) / canvasElement.width) * 100
       //   );
       //   const y = Math.floor(
       //     ((e.clientY - rect.top) / canvasElement.height) * 100
       //   );
-  
+
       //   const res = selectedHotSpot.points.filter((point) => {
       //     let factor = point.width / 4;
       //     return (
@@ -124,7 +145,7 @@ function ViewPhoto() {
       //       Math.floor(point.y - factor) < y
       //     );
       //   });
-  
+
       //   setClicks(clicks + 1);
       //   if (res.length != 0) {
       //     setSuccesses(successes + 1);
@@ -250,7 +271,6 @@ function ViewPhoto() {
     }
   };
 
-  // new!
   const redrawLines = () => {
     const canvasElement = canvasRef.current;
     const context = canvasElement.getContext("2d");
@@ -272,11 +292,33 @@ function ViewPhoto() {
     }
   };
 
+  const handleflickering = () => {
+    setFlickering(true);
+    setTimeout(() => {
+      setFlickering(false);
+    }, 1000); // Adjust the duration of flickering as per your preference
+  };
+
+  // useEffect(() => {
+  //   let flickerInterval = 1;
+  //   console.log(flickering);
+  //   if (flickering) {
+  //     flickerInterval = setInterval(() => {
+  //       removeLines();
+  //       setTimeout(() => {
+  //         redrawLines();
+  //       }, 500); // Adjust the flickering speed as per your preference
+  //     }, 1000); // Adjust the duration of flickering as per your preference
+  //   } else {
+  //     removeLines();
+  //     clearInterval(flickerInterval);
+  //   }
+
+  //   return () => clearInterval(flickerInterval);
+  // }, [flickering]);
+
   return (
-    <div
-      className="photoContainerPage"
-      style={{ position: "relative" }}
-    >
+    <div className="photoContainerPage" style={{ position: "relative" }}>
       <div id="search-form">
         <div id="header">
           <h1>נקודות חמות</h1>
@@ -305,16 +347,30 @@ function ViewPhoto() {
               style={{ cursor: "pointer" }}
               onMouseDown={(e) => handleTouch(e)}
             />
-            <button id="button" onClick={() => redrawLines()}>
-              הצג סימונים
+            {/* <button id="button" onClick={() => redrawLines()}> */}
+            <button
+              id="button"
+              onClick={
+                !showLines
+                  ? () => {
+                      changeShowLine();
+                      redrawLines();
+                    }
+                  : () => {
+                      changeShowLine();
+                      removeLines();
+                    }
+              }
+            >
+              {!showLines ? "הצג סימונים" : "הסתר סימנים"}
             </button>
-            {/* <button id="button" onClick={() => drawRect()}>
-              הצג סימונים
-            </button> */}
+            <button id="button" onClick={changeFlickering}>
+              {!flickering ? "סימנים מהבהבים" : "הפסק היבהוב"}
+            </button>
           </div>
         )}
         {hotspots && (
-          <div className="videoContainercc">
+          <div className="videoContainercc" style={{alignItems: "flex-start", direction: "rtl"}}>
             {hotspots.map((h, key) => {
               return (
                 <label
@@ -347,20 +403,6 @@ function ViewPhoto() {
                       }}
                     />
                     <h2>{h.title}</h2>
-                    <div className="touches">
-                      <div className="touch">
-                        <h3>הצלחות</h3>
-                        <h3>
-                          {selectedOption !== key ? h.success : successes}
-                        </h3>
-                      </div>
-                      <div className="touch">
-                        <h3>סך לחיצות</h3>
-                        <h3>
-                          {selectedOption !== key ? h.itemClickCount : clicks}
-                        </h3>
-                      </div>
-                    </div>
                   </div>
                   {selectedOption === key && (
                     <button
