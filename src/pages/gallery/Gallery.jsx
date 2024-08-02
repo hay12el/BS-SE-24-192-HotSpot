@@ -14,7 +14,7 @@ import {
   where,
   deleteDoc,
 } from "firebase/firestore";
-import { deleteObject, ref } from "firebase/storage";
+import { deleteObject, getDownloadURL, ref } from "firebase/storage";
 
 function Gallery() {
   const navigate = useNavigate();
@@ -55,6 +55,7 @@ function Gallery() {
   };
 
   const deleteItem = async (type, itemId, url) => {
+    console.log(itemId, url);
     if (window.confirm("האם למחוק את האוביקט המבוקש?")) {
       let path;
       const start = url.indexOf("%2F") + 3;
@@ -63,7 +64,10 @@ function Gallery() {
 
       if (start !== -1 && end !== -1 && start < end) {
         path = url.substring(start, end);
+        path = decodeURIComponent(path);
+        console.log(path);
       }
+
       try {
         if (type == "videos") {
           const storageRef = ref(storage, type + "/" + path);
@@ -72,21 +76,23 @@ function Gallery() {
             `/users/${userID}/students/${studentID}/${type}`,
             itemId
           );
-          await deleteDoc(docRef);
           await deleteObject(storageRef);
+          await deleteDoc(docRef);
         } else {
+          // Photos
           const storageRef = ref(storage, type + "/" + path);
           const docRef = doc(
             db,
             `/users/${userID}/students/${studentID}/photos`,
             itemId
           );
-          await deleteDoc(docRef);
           await deleteObject(storageRef);
+          await deleteDoc(docRef);
         }
         alert("האויביקט נמחק בהצלחה");
         window.location.reload(true);
       } catch (error) {
+        window.location.reload(true);
         alert(error.message);
       }
     }
@@ -158,7 +164,6 @@ function Gallery() {
                     onClick={() => navigate(`/editvideo/${v.id}/${studentID}`)}
                   >
                     ערוך סרטון
-                    
                   </button>
                   <button
                     id="button"

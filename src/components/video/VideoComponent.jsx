@@ -35,6 +35,25 @@ const VideoComponent = ({ videoUrl, videoObject, hotspots }) => {
     setHotspots(hotspots);
   }, [hotspots]);
 
+  function customRound(num) {
+    // Ensure the input is a number
+    if (typeof num !== "number" || isNaN(num)) {
+      throw new Error("Input must be a valid number");
+    }
+
+    // Extract the integer and decimal parts
+    const integerPart = Math.floor(num);
+    const decimalPart = num - integerPart;
+
+    if (decimalPart < 0.3) {
+      return integerPart + 0.0;
+    } else if (decimalPart >= 0.7) {
+      return integerPart + 1.0;
+    } else {
+      return integerPart + 0.5;
+    }
+  }
+
   const handleCaptureImage = () => {
     try {
       const videoElement = videoRef.current;
@@ -47,7 +66,9 @@ const VideoComponent = ({ videoUrl, videoObject, hotspots }) => {
       canvasElement.width = 640;
       canvasElement.height = 360;
 
-      videoElement.currentTime = Math.floor(videoRef.current.currentTime);
+      console.log(videoRef.current.currentTime);
+      console.log(customRound(videoRef.current.currentTime));
+      videoElement.currentTime = customRound(videoRef.current.currentTime);
 
       const context = canvasElement.getContext("2d");
       context.drawImage(
@@ -185,7 +206,7 @@ const VideoComponent = ({ videoUrl, videoObject, hotspots }) => {
         </div>
       )}
       {HotSpots && (
-        <table style={{ width: "90%", height:"min-content" }}>
+        <table style={{ width: "90%", height: "min-content" }}>
           <tr>
             <th style={headerStyle}>זמן הצגת הנקודות</th>
             <th style={headerStyle}>נקודות</th>

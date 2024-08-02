@@ -26,37 +26,52 @@ function ViewVideo() {
     hotspot: "",
     capturedImage: "",
   });
+  const videoElementWidth = useRef(0);
+  const videoElementHeight = useRef(0);
 
   useEffect(() => {
     fetchData();
     return () => {};
   }, []);
 
-  //   useEffect(() => {
-  //     console.log(verticalLines);
-  //     drawVerticalLines();
-  //   }, [verticalLines]);
-
   useEffect(() => {
     if (videoRef.current && hotspots !== null) {
+      const videoCont = document.querySelector(".videoContainer#vCont");
+
+      videoElementWidth.current = videoCont.offsetWidth;
+      videoElementHeight.current = videoCont.offsetHeight;
       const totalTime = videoRef.current.duration; // Assuming 'duration' is a property in your video document
-      const lines = hotspots.map((h) => (h.timestamp / totalTime) * 610);
+      const lines = hotspots.map(
+        (h) => (h.timestamp / totalTime) * videoElementWidth.current
+      );
       drawVerticalLines(lines);
+      const canvasElement = canvasRef.current;
+      canvasElement.width = videoElementWidth.current - 60;
+      canvasElement.height = videoElementHeight.current - 60;
       const hotspotTime = hotspots.map((h) => Math.round(h.timestamp));
       const handleTimeUpdate = () => {
         // console.log(videoRef.current);
 
-        if (hotspotTime.includes(Math.round(videoRef.current.currentTime))) {
+        if (
+          hotspotTime.includes(Math.round(videoRef.current.currentTime)) &&
+          videoRef.current.currentTime != hotspotDetails.hotspot.timestamp
+        ) {
           try {
+            console.log(
+              videoRef.current.currentTime,
+              hotspotDetails.hotspot.timestamp
+            );
             const videoElement = videoRef.current;
             const canvasElement = canvasRef.current;
-
-            canvasElement.width = 640;
-            canvasElement.height = 360;
-            
-            // console.log("videoElement.currentTime: ", videoElement.currentTime);
-            // videoElement.currentTime = Math.floor(videoElement.currentTime);
-
+            // Pause the video
+            videoRef.current.pause();
+            setHotspotDetails({
+              hotspot: hotspots.filter(
+                (h) =>
+                  Math.round(h.timestamp) ==
+                  Math.round(videoRef.current.currentTime)
+              )[0],
+            });
             const context = canvasElement.getContext("2d");
             context.drawImage(
               videoElement,
@@ -67,7 +82,6 @@ function ViewVideo() {
             );
 
             canvasElement.toDataURL("image/png");
-            //   setCapturedImage(imageBlob);
           } catch (error) {
             console.log(error);
           }
@@ -79,8 +93,7 @@ function ViewVideo() {
                 Math.round(videoRef.current.currentTime)
             )[0],
           });
-          // Pause the video
-          videoRef.current.pause();
+
           setHotspot(true);
         }
       };
@@ -103,6 +116,32 @@ function ViewVideo() {
       // Set isMounted to false when the component is unmounted
     };
   }, [isMounted]);
+
+  useEffect(() => {
+    console.log("useeffect: ", hotspotDetails.hotspot);
+    if (hotspotDetails.hotspot.timestamp) {
+      videoRef.current.currentTime = hotspotDetails.hotspot.timestamp;
+    }
+  }, [hotspotDetails.hotspot]);
+
+  function customRound(num) {
+    // Ensure the input is a number
+    if (typeof num !== "number" || isNaN(num)) {
+      throw new Error("Input must be a valid number");
+    }
+
+    // Extract the integer and decimal parts
+    const integerPart = Math.floor(num);
+    const decimalPart = num - integerPart;
+
+    if (decimalPart < 0.3) {
+      return integerPart + 0.0;
+    } else if (decimalPart >= 0.7) {
+      return integerPart + 1.0;
+    } else {
+      return integerPart + 0.5;
+    }
+  }
 
   const fetchData = async () => {
     try {
@@ -128,38 +167,13 @@ function ViewVideo() {
         getDoc(docRef),
       ]);
       setVideoUrl(video.data().videoUri);
-      //FINE!
 
       // fetch and set hotspots
       const hotSpots = HotSpots.docs.map((d) => d.data());
       setHotspots(hotSpots);
-
-      //   const totalTime = videoRef.current.duration; // Assuming 'duration' is a property in your video document
-      //   const lines = hotSpots.map((h) => (h.timestamp / totalTime) * 610);
-      //   console.log(lines);
-      //   drawVerticalLines(lines);
-
-      //   console.log(lines);
-      //   setVerticalLines(lines);
     } catch (error) {
       console.log(error);
     }
-  };
-
-  const handlePlayPause = () => {
-    const videoElement = videoRef.current;
-    if (videoElement.paused) {
-      videoElement.play();
-    } else {
-      videoElement.pause();
-      setPausedTime(videoElement.currentTime);
-    }
-  };
-
-  const handleStop = () => {
-    const videoElement = videoRef.current;
-    videoElement.pause();
-    videoElement.currentTime = 0;
   };
 
   const drawVerticalLines = (lines) => {
@@ -206,16 +220,26 @@ function ViewVideo() {
       </div>
 
       {videoUrl && (
-        <div className="videoContainer">
+        <div
+          className="videoContainer"
+          style={{
+            aspectRatio: 16 / 9,
+            width: "100%",
+            display: hotspot ? "none" : "flex",
+          }}
+        >
           <div
             className="videoContainer"
-            style={{ display: hotspot ? "none" : "flex" }}
+            id="vCont"
+            style={{
+              aspectRatio: 16 / 9,
+              width: "100%",
+            }}
           >
             <video
               id="videoPlayer"
               ref={videoRef}
-              width="640"
-              height="360"
+              width={"100%"}
               controls
               onLoadedData={() => setIsMounted(true)}
             >
@@ -224,7 +248,7 @@ function ViewVideo() {
             </video>
             <canvas
               ref={lineCanvasRef}
-              width="610"
+              width={videoElementWidth - 60}
               height="20"
               style={lineCanvasStyle}
             ></canvas>
@@ -232,13 +256,17 @@ function ViewVideo() {
         </div>
       )}
 
-      <div style={{ visibility: hotspot ? "visible" : "hidden" }}>
+      <div
+        style={{ visibility: hotspot ? "visible" : "hidden", width: "100%" }}
+      >
         <HotSpotPic
           hotspot={hotspotDetails.hotspot}
           canvasRef={canvasRef}
           setHotspot={setHotspot}
           videoRef={videoRef}
           hotspotIndicator={hotspot}
+          videoElementWidth={videoElementWidth}
+          videoElementHeight={videoElementHeight}
         />
       </div>
     </div>

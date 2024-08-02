@@ -13,6 +13,8 @@ function HotSpotPic({
   setHotspot,
   videoRef,
   hotspotIndicator,
+  videoElementWidth,
+  videoElementHeight,
 }) {
   const success = new Audio(success1);
   const error = new Audio(error1);
@@ -102,7 +104,7 @@ function HotSpotPic({
 
           // Update the document with the modified array
           await updateDoc(docRef, {
-            ['hotspots']: hotspotArray,
+            ["hotspots"]: hotspotArray,
           });
 
           console.log("Document successfully updated!");
@@ -113,25 +115,6 @@ function HotSpotPic({
         console.log("No such document!");
       }
 
-      // selectedHotSpot.id
-
-      // await updateDoc(docRef, { success: successes, itemClickCount: clicks });
-
-      // const newArray = [...hotspots];
-      // // Find the object you want to update (e.g., based on its ID)
-      // const index = newArray.findIndex(
-      //   (item) => item.id === selectedHotSpot.id
-      // );
-      // if (index !== -1) {
-      //   // Update the property of the object
-      //   newArray[index] = {
-      //     ...newArray[index],
-      //     success: successes,
-      //     itemClickCount: clicks,
-      //   };
-      //   // Update the state with the new array
-      //   setHotspots(newArray);
-      // }
       alert("תוצאות נשמרו בהצלחה!");
     } catch (error) {
       console.log(error);
@@ -141,6 +124,7 @@ function HotSpotPic({
   const handleClose = async () => {
     try {
       setHotspot(false);
+      setShowLines(false);
       if (videoRef) {
         videoRef.current.currentTime = Math.floor(hotspot.timestamp) + 1.5;
         videoRef.current.play();
@@ -160,16 +144,12 @@ function HotSpotPic({
   };
 
   const removeLines = () => {
-    console.log("remove");
     try {
       const videoElement = videoRef.current;
       const canvasElement = canvasRef.current;
 
-      canvasElement.width = 640;
-      canvasElement.height = 360;
-
-      // console.log("videoElement.currentTime: ", videoElement.currentTime);
-      // videoElement.currentTime = Math.floor(videoElement.currentTime);
+      canvasElement.width = videoElementWidth.current - 60;
+      canvasElement.height = videoElementHeight.current - 60;
 
       const context = canvasElement.getContext("2d");
       context.drawImage(
@@ -184,13 +164,6 @@ function HotSpotPic({
     } catch (error) {
       console.log(error);
     }
-    // const img = new Image();
-    // img.src = photo.fileUri;
-    // img.ref = imageRef;
-    // const canvasElement = canvasRef.current;
-    // const context = canvasElement.getContext("2d");
-    // context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-    // context.drawImage(img, 0, 0, canvasElement.width, canvasElement.height);
   };
 
   const redrawLines = () => {
@@ -234,74 +207,83 @@ function HotSpotPic({
             style={canvasStyle}
             onMouseDown={handleCanvasTouch}
           ></canvas>
-          <button
-            id="button"
-            onClick={
-              !showLines
-                ? () => {
-                    changeShowLine();
-                    redrawLines();
-                  }
-                : () => {
-                    changeShowLine();
-                    removeLines();
-                  }
-            }
-          >
-            {!showLines ? "הצג סימונים" : "הסתר סימנים"}
-          </button>
-        </div>
-        {hotspot && (
-          <div
-            className="videoContainercc"
-            style={{ direction: "rtl", alignItems: "flex-start" }}
-          >
-            {hotspot.hotspots.map((h, key) => {
-              return (
-                <label
-                  key={key}
-                  htmlFor={key}
-                  style={{ padding: 0 }}
-                  className={selectedOption === key ? "selected" : "hotspotCo"}
-                >
-                  <div
-                    className="hotspotCo"
-                    style={{
-                      background:
-                        selectedOption === key ? "#edca87" : "#f7e5c4",
-                      boxShadow:
-                        selectedOption === key
-                          ? ""
-                          : "0 0 0.3em 0.2em rgba(0, 0, 0, 0.082);",
-                    }}
-                  >
-                    <input
-                      type="radio"
-                      name="hotspotR"
-                      id={key}
-                      onChange={(e) => handleChange(e, h)}
-                      style={{
-                        position: "fixed",
-                        opacity: 0,
-                        pointerEvents: "none",
-                      }}
-                    />
-                    <h2>{h.title}</h2>
-                    {selectedOption === key && (
-                      <button
-                        id="button"
-                        style={{ margin: "10px" }}
-                        onClick={handleSaveResults}
+          <div className="down">
+            <button
+              id="button"
+              onClick={
+                !showLines
+                  ? () => {
+                      changeShowLine();
+                      redrawLines();
+                    }
+                  : () => {
+                      changeShowLine();
+                      removeLines();
+                    }
+              }
+            >
+              {!showLines ? "הצג סימונים" : "הסתר סימנים"}
+            </button>
+            {hotspot && (
+              <div
+                className="videoContainercc"
+                style={{
+                  direction: "rtl",
+                  alignItems: "flex-start",
+                  flexDirection: "row",
+                  gap: 20,
+                }}
+              >
+                {hotspot.hotspots.map((h, key) => {
+                  return (
+                    <label
+                      key={key}
+                      htmlFor={key}
+                      style={{ padding: 0 }}
+                      className={
+                        selectedOption === key ? "selected" : "hotspotCo"
+                      }
+                    >
+                      <div
+                        className="hotspotCo"
+                        style={{
+                          background:
+                            selectedOption === key ? "#edca87" : "#f7e5c4",
+                          boxShadow:
+                            selectedOption === key
+                              ? ""
+                              : "0 0 0.3em 0.2em rgba(0, 0, 0, 0.082);",
+                        }}
                       >
-                        שמור תוצאות
-                      </button>
-                    )}
-                  </div>
-                </label>
-              );
-            })}
+                        <input
+                          type="radio"
+                          name="hotspotR"
+                          id={key}
+                          onChange={(e) => handleChange(e, h)}
+                          style={{
+                            position: "fixed",
+                            opacity: 0,
+                            pointerEvents: "none",
+                          }}
+                        />
+                        <h2>{h.title}</h2>
+                        {selectedOption === key && (
+                          <button
+                            id="button"
+                            style={{ margin: "10px" }}
+                            onClick={handleSaveResults}
+                          >
+                            שמור תוצאות
+                          </button>
+                        )}
+                      </div>
+                    </label>
+                  );
+                })}
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

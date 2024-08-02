@@ -46,7 +46,6 @@ function ViewPhoto() {
   useEffect(() => {
     if (photo) {
       const canvasElement = canvasRef.current;
-      console.log(photo);
 
       const img = new Image();
       img.src = photo.fileUri;
@@ -60,7 +59,8 @@ function ViewPhoto() {
       h = Math.round(DPR * h);
 
       if (screenWidth > 600) {
-        canvasElement.width = screenWidth / 2;
+        console.log("62");
+        canvasElement.width = screenWidth * (3/4);
         canvasElement.height = canvasElement.width * (img.height / img.width);
       } else {
         canvasElement.width = screenWidth - 20;
@@ -348,29 +348,34 @@ function ViewPhoto() {
               onMouseDown={(e) => handleTouch(e)}
             />
             {/* <button id="button" onClick={() => redrawLines()}> */}
-            <button
-              id="button"
-              onClick={
-                !showLines
-                  ? () => {
-                      changeShowLine();
-                      redrawLines();
-                    }
-                  : () => {
-                      changeShowLine();
-                      removeLines();
-                    }
-              }
-            >
-              {!showLines ? "הצג סימונים" : "הסתר סימנים"}
-            </button>
-            <button id="button" onClick={changeFlickering}>
-              {!flickering ? "סימנים מהבהבים" : "הפסק היבהוב"}
-            </button>
+            <div className="buttons">
+              <button
+                id="button"
+                onClick={
+                  !showLines
+                    ? () => {
+                        changeShowLine();
+                        redrawLines();
+                      }
+                    : () => {
+                        changeShowLine();
+                        removeLines();
+                      }
+                }
+              >
+                {!showLines ? "הצג סימונים" : "הסתר סימנים"}
+              </button>
+              <button id="button" onClick={changeFlickering}>
+                {!flickering ? "סימנים מהבהבים" : "הפסק היבהוב"}
+              </button>
+            </div>
           </div>
         )}
         {hotspots && (
-          <div className="videoContainercc" style={{alignItems: "flex-start", direction: "rtl"}}>
+          <div
+            className="videoContainercc"
+            style={{ alignItems: "flex-start", direction: "rtl" }}
+          >
             {hotspots.map((h, key) => {
               return (
                 <label

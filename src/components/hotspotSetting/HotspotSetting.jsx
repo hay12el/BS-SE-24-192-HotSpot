@@ -28,7 +28,7 @@ function HotspotSetting({
   setVerticalLines,
   verticalLines,
 }) {
-  const [selectedColor, setSelectedColor] = useState("#ffffff");
+  const [selectedColor, setSelectedColor] = useState("red");
   const [name, setName] = useState("");
   const [hotspotColor, setHotspotColor] = useState("red");
   const recordedChunks = useRef([]);
@@ -63,7 +63,6 @@ function HotspotSetting({
         x: (p.x / canvasElement.width) * 100,
         y: (p.y / canvasElement.height) * 100,
       }));
-      console.log(pointsForSub);
 
       if (name == "") {
         alert("הכנס את שם הנקודה");
@@ -79,7 +78,6 @@ function HotspotSetting({
           id: newUUID,
         };
         setHotspots([...hotspots, newPoint]);
-        setSelectedColor("#6A1717");
         setName("");
         setTimeout(() => {
           recordedChunks.current = [];
@@ -90,31 +88,27 @@ function HotspotSetting({
     }
   };
 
-  const removeLastSquare = () => {
-    if (recordedChunks.current.length >= 0) {
-      recordedChunks.current.pop();
-      const context = canvasRef.current.getContext("2d");
-      redrawSquares(context);
-    }
-  };
-
   const handleClose = (afterAdding = false) => {
-    if(afterAdding){
+    if (afterAdding) {
       recordedChunks.current = [];
       setName("");
       setHotspot(false);
       setCapturedImage(null);
       setVerticalLines([...verticalLines, (pausedTime / totalTime) * 610]);
-      setSquareWidth(30);
+      setSquareWidth(3);
+      setSelectedColor("red");
+      isDrawing.current = false;
       setHotspots([]);
-    }else{
-      if(window.confirm("האם לצאת ללא שמירת שמירת הנקודות החמות?") == true){
+    } else {
+      if (window.confirm("האם לצאת ללא שמירת שמירת הנקודות החמות?") == true) {
         recordedChunks.current = [];
         setName("");
         setHotspot(false);
         setCapturedImage(null);
         setVerticalLines([...verticalLines, (pausedTime / totalTime) * 610]);
-        setSquareWidth(30);
+        setSquareWidth(3);
+        isDrawing.current = false;
+        setSelectedColor("red");
         setHotspots([]);
       }
     }
@@ -128,39 +122,8 @@ function HotspotSetting({
     setO_DETECTION(true);
   };
 
-  const redrawSquares = (context) => {
-    context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-
-    handleCaptureImage(capturedImage);
-    context.globalAlpha = 0.3;
-    context.fillStyle = hotspotColor;
-
-    recordedChunks.current.forEach((square) => {
-      context.fillRect(square.x - 15, square.y - 15, squareWidth, squareWidth);
-    });
-  };
   const handlePredictClick = (pred) => {
     alert("האם תרצה/י לשמור את האוביקט כנקודה חמה?");
-  };
-
-  const handleCanvasDraw = (event) => {
-    const canvasElement = canvasRef.current;
-    const context = canvasElement.getContext("2d");
-    const rect = canvasElement.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-
-    recordedChunks.current.push({ x: x, y: y, width: squareWidth });
-
-    // // Draw the square on the canvas
-    context.globalAlpha = 0.3;
-    context.fillStyle = hotspotColor;
-
-    squares.forEach((square) => {
-      context.fillRect(square.x, square.y, squareWidth, squareWidth);
-    });
-
-    context.fillRect(x - 15, y - 15, squareWidth, squareWidth);
   };
 
   const hundleAddHotspots = async () => {
@@ -170,7 +133,6 @@ function HotspotSetting({
       } else {
         var userID = currentUser.uid;
         const { photoid, studentid } = params;
-        console.log(photoid, studentid);
         const newUUID = uuidv4();
         await setDoc(
           doc(
@@ -192,9 +154,8 @@ function HotspotSetting({
     }
   };
 
-  // code added
   const startDrawing = ({ nativeEvent }) => {
-    console.log("start drawing");
+    nativeEvent.preventDefault();
     pointsRef.current = [];
     const canvasElement = canvasRef.current;
     const context = canvasElement.getContext("2d");
@@ -212,7 +173,11 @@ function HotspotSetting({
     context.beginPath();
     context.strokeStyle = selectedColor;
     context.lineWidth = squareWidth;
-    context.moveTo(x1, y1);
+    if (x1 == 0 && y1 == 0) {
+      context.moveTo(x2, y2);
+    } else {
+      context.moveTo(x1, y1);
+    }
     context.lineTo(x2, y2);
     context.stroke();
   };
@@ -230,14 +195,12 @@ function HotspotSetting({
 
   const autoComplete = (e) => {
     e.preventDefault(); // Prevent right-click menu
-    if (isDrawing.current && pointsRef.current.length > 1) {
-      const context = canvasRef.current.getContext("2d");
-      // Connect the last point to the first
-      const firstPoint = pointsRef.current[0];
-      drawLine(context, startX, startY, firstPoint.x, firstPoint.y);
-      isDrawing.current = false;
-      console.log(pointsRef.current);
-    }
+
+    const context = canvasRef.current.getContext("2d");
+    // Connect the last point to the first
+    const firstPoint = pointsRef.current[0];
+    drawLine(context, startX, startY, firstPoint.x, firstPoint.y);
+    isDrawing.current = false;
   };
 
   const getCanvasCoordinates = (event) => {
@@ -366,13 +329,11 @@ function HotspotSetting({
                 ></div>
               ))}
             </div>
-
-            {/* <ChromePicker color={selectedColor} onChange={handleColorChange} /> */}
           </label>
 
           <br />
           <label>
-            <h4>עובי הריבוע:</h4>
+            <h4>עובי העט:</h4>
             <input
               type="range"
               min="1"
@@ -384,9 +345,6 @@ function HotspotSetting({
 
           <br />
           <div className="buttons">
-            <button id="button" onClick={removeLastSquare}>
-              <span class="glyphicon glyphicon-repeat"></span>
-            </button>
             <button
               id="button"
               style={{ color: "#0a7cae", fontWeight: "600" }}
@@ -413,5 +371,5 @@ export default HotspotSetting;
 const canvasStyle = {
   border: "1px solid #cccccc",
   marginTop: "10px",
-  cursor: 'pointer'
+  cursor: "pointer",
 };
