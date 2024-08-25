@@ -13,8 +13,7 @@ import {
 import { db } from "../../firebase";
 import { useAuth } from "../../context/AuthContext";
 
-const VideoComponent = ({ videoUrl, videoObject, hotspots }) => {
-  // const [videoUrl, setVideoUrl] = useState(null);
+const VideoComponent = ({ videoUrl, hotspots, title }) => {
   const [capturedImage, setCapturedImage] = useState(null);
   const [hotspot, setHotspot] = useState(false);
   const [HotSpots, setHotspots] = useState(null);
@@ -27,13 +26,20 @@ const VideoComponent = ({ videoUrl, videoObject, hotspots }) => {
   const navigate = useNavigate();
   const params = useParams();
   const { currentUser } = useAuth();
+  const [videoLoaded, setVideoLoaded] = useState(false);
+  const videoElementWidth = useRef(0);
 
   useEffect(() => {
     setTotalTime(videoRef.current.duration);
-    const lines = hotspots.map((h) => (h.timestamp / totalTime) * 610);
-    drawVerticalLines(lines);
+    const videoCont = document.querySelector("#videoPlayer");
+    videoElementWidth.current = videoCont.offsetWidth;
+
     setHotspots(hotspots);
-  }, [hotspots]);
+  }, [videoLoaded]);
+
+  useEffect(() => {
+    drawVerticalLines();
+  }, [totalTime]);
 
   function customRound(num) {
     // Ensure the input is a number
@@ -66,8 +72,6 @@ const VideoComponent = ({ videoUrl, videoObject, hotspots }) => {
       canvasElement.width = 640;
       canvasElement.height = 360;
 
-      console.log(videoRef.current.currentTime);
-      console.log(customRound(videoRef.current.currentTime));
       videoElement.currentTime = customRound(videoRef.current.currentTime);
 
       const context = canvasElement.getContext("2d");
@@ -78,19 +82,19 @@ const VideoComponent = ({ videoUrl, videoObject, hotspots }) => {
         canvasElement.width,
         canvasElement.height
       );
-
-      // const imageBlob = canvasElement.toDataURL("image/png");
     } catch (error) {
       console.log(error);
     }
   };
 
-  const drawVerticalLines = (lines) => {
+  const drawVerticalLines = () => {
+    const lines = hotspots.map(
+      (h) => (h.timestamp / totalTime) * videoElementWidth.current
+    );
+    setVerticalLines(lines);
     const lineCanvasElement = lineCanvasRef.current;
     if (lineCanvasElement != null) {
       const context = lineCanvasElement.getContext("2d");
-
-      console.log(lines);
 
       context.clearRect(
         0,
@@ -169,20 +173,22 @@ const VideoComponent = ({ videoUrl, videoObject, hotspots }) => {
             <video
               id="videoPlayer"
               ref={videoRef}
-              width="640"
-              height="360"
+              // width="640"
+              // height="360"
               controls
-              onLoadedData={() => console.log("Video loaded")}
+              onLoadedData={() => setVideoLoaded(!videoLoaded)}
             >
               <source src={videoUrl} type="video/mp4" />
               Your browser does not support the video tag.
             </video>
-            <canvas
-              ref={lineCanvasRef}
-              width="610"
-              height="20"
-              style={lineCanvasStyle}
-            ></canvas>{" "}
+            {videoLoaded && (
+              <canvas
+                ref={lineCanvasRef}
+                width={videoElementWidth.current}
+                height="20"
+                style={lineCanvasStyle}
+              ></canvas>
+            )}
             {/* Added line */}
             <div className="buttons">
               <button id="button" onClick={handleCaptureImage}>
@@ -201,6 +207,9 @@ const VideoComponent = ({ videoUrl, videoObject, hotspots }) => {
               totalTime={totalTime}
               setVerticalLines={setVerticalLines}
               verticalLines={verticalLines}
+              HotSpots={HotSpots}
+              setHotSpotsParent={setHotspots}
+              title={`${title} ${HotSpots ? HotSpots.length : "0"}`}
             />
           </div>
         </div>

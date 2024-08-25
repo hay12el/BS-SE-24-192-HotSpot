@@ -39,28 +39,23 @@ function ViewVideo() {
       const videoCont = document.querySelector(".videoContainer#vCont");
 
       videoElementWidth.current = videoCont.offsetWidth;
+      console.log("videoElementWidth.current", videoElementWidth.current);
+
       videoElementHeight.current = videoCont.offsetHeight;
-      const totalTime = videoRef.current.duration; // Assuming 'duration' is a property in your video document
-      const lines = hotspots.map(
-        (h) => (h.timestamp / totalTime) * videoElementWidth.current
-      );
-      drawVerticalLines(lines);
+      const totalTime = videoRef.current.duration;
+      // Assuming 'duration' is a property in your video document
+      setTotalTime(totalTime);
+
       const canvasElement = canvasRef.current;
       canvasElement.width = videoElementWidth.current - 60;
       canvasElement.height = videoElementHeight.current - 60;
       const hotspotTime = hotspots.map((h) => Math.round(h.timestamp));
       const handleTimeUpdate = () => {
-        // console.log(videoRef.current);
-
         if (
           hotspotTime.includes(Math.round(videoRef.current.currentTime)) &&
           videoRef.current.currentTime != hotspotDetails.hotspot.timestamp
         ) {
           try {
-            console.log(
-              videoRef.current.currentTime,
-              hotspotDetails.hotspot.timestamp
-            );
             const videoElement = videoRef.current;
             const canvasElement = canvasRef.current;
             // Pause the video
@@ -118,30 +113,14 @@ function ViewVideo() {
   }, [isMounted]);
 
   useEffect(() => {
-    console.log("useeffect: ", hotspotDetails.hotspot);
     if (hotspotDetails.hotspot.timestamp) {
       videoRef.current.currentTime = hotspotDetails.hotspot.timestamp;
     }
   }, [hotspotDetails.hotspot]);
 
-  function customRound(num) {
-    // Ensure the input is a number
-    if (typeof num !== "number" || isNaN(num)) {
-      throw new Error("Input must be a valid number");
-    }
-
-    // Extract the integer and decimal parts
-    const integerPart = Math.floor(num);
-    const decimalPart = num - integerPart;
-
-    if (decimalPart < 0.3) {
-      return integerPart + 0.0;
-    } else if (decimalPart >= 0.7) {
-      return integerPart + 1.0;
-    } else {
-      return integerPart + 0.5;
-    }
-  }
+  useEffect(() => {
+    drawVerticalLines();
+  }, [totalTime, hotspots]);
 
   const fetchData = async () => {
     try {
@@ -176,43 +155,49 @@ function ViewVideo() {
     }
   };
 
-  const drawVerticalLines = (lines) => {
-    const lineCanvasElement = lineCanvasRef.current;
-    if (lineCanvasElement != null) {
-      const context = lineCanvasElement.getContext("2d");
+  const drawVerticalLines = () => {
+    if (hotspots && totalTime != 0) {
+      console.log("drawVerticalLines");
 
-      context.clearRect(
-        0,
-        0,
-        lineCanvasElement.width,
-        lineCanvasElement.height
-      );
+      console.log(hotspots);
+      console.log(totalTime);
 
-      context.beginPath();
-      context.strokeStyle = "black";
-      context.lineWidth = 2;
+      const lines = hotspots.map((h) => (h.timestamp / totalTime) * 610);
+      setVerticalLines(lines);
+      console.log("verticalLines: ", verticalLines);
 
-      lines.forEach((x) => {
-        context.moveTo(x, 0);
-        context.lineTo(x, lineCanvasRef.current.height);
-      });
+      const lineCanvasElement = lineCanvasRef.current;
+      if (lineCanvasElement != null) {
+        const context = lineCanvasElement.getContext("2d");
 
-      context.stroke();
-      context.closePath();
+        context.clearRect(
+          0,
+          0,
+          lineCanvasElement.width,
+          lineCanvasElement.height
+        );
+
+        console.log(lineCanvasElement.width, lineCanvasElement.height);
+
+        context.beginPath();
+        context.strokeStyle = "black";
+        context.lineWidth = 2;
+
+        console.log("lines: ", lines);
+
+        lines.forEach((x) => {
+          context.moveTo(x, 0);
+          context.lineTo(x, lineCanvasRef.current.height);
+        });
+
+        context.stroke();
+        context.closePath();
+      }
     }
   };
 
   return (
     <div className="videoContainer" style={{ position: "relative" }}>
-      <div id="search-form">
-        <div id="header">
-          <h1>עריכת נקודות חמות</h1>
-        </div>
-        <div id="header">
-          <h3>בחר סרטון והוסף נקודות חמות</h3>
-        </div>
-      </div>
-
       <div className="backB">
         <button id="button" onClick={() => navigate(-1)}>
           <span className="glyphicon glyphicon-arrow-left" /> חזרה לגלריה
@@ -246,12 +231,14 @@ function ViewVideo() {
               <source src={videoUrl} type="video/mp4" />
               Your browser does not support the video tag.
             </video>
-            <canvas
-              ref={lineCanvasRef}
-              width={videoElementWidth - 60}
-              height="20"
-              style={lineCanvasStyle}
-            ></canvas>
+            {isMounted && (
+              <canvas
+                ref={lineCanvasRef}
+                width={videoElementWidth - 60}
+                height="20"
+                style={lineCanvasStyle}
+              ></canvas>
+            )}
           </div>
         </div>
       )}

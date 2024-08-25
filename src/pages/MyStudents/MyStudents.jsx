@@ -4,15 +4,8 @@ import { CheckAuth } from "../../hooks/hooks";
 import { useAuth } from "../../context/AuthContext";
 import { db } from "../../firebase";
 import "./MyStudents.css";
-import {
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  onSnapshot,
-  query,
-  where,
-} from "firebase/firestore";
+import { collection, getDocs, query } from "firebase/firestore";
+import userImage from "../../assets/images/image.png";
 
 function MyStudents() {
   const navigate = useNavigate();
@@ -23,7 +16,7 @@ function MyStudents() {
   useEffect(() => {
     if (!isLogIn) {
       navigate("/login");
-    }
+    }    
     fetchData();
   }, []);
 
@@ -60,7 +53,11 @@ function MyStudents() {
           {students.map((s, i) => {
             return (
               <Link to={`/myGallery/${s.id}`} className="student" key={i}>
-                <img src={s.avatar} alt="" className="avatar" />
+                <img
+                  src={s.avatar ? s.avatar : userImage}
+                  alt=""
+                  className="avatar"
+                />
                 <h3>{s.name}</h3>
               </Link>
             );

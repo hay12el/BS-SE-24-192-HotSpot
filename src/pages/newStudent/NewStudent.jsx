@@ -31,50 +31,61 @@ function NewStudent() {
   };
   const handleNameChange = (e) => {
     setDetails((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-    console.log(details);
   };
 
   const submit = async () => {
     var userID = currentUser.uid;
     const newUUID = uuidv4();
 
-    const storageRef = ref(storage, "images/" + details.firstName);
-    const uploadTask = uploadBytesResumable(storageRef, file);
+    if (file) {
+      const storageRef = ref(storage, "images/" + details.firstName);
+      const uploadTask = uploadBytesResumable(storageRef, file);
 
-    uploadTask.on(
-      "state_changed",
-      (snapshot) => {
-        const progress =
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        setProgress(progress);
-        switch (snapshot.state) {
-          case "paused":
-            console.log("paused");
-            break;
-          case "running":
-            console.log("running");
-            break;
-          default:
-            break;
-        }
-      },
-      (error) => {
-        console.log(error);
-      },
-      () => {
-        getDownloadURL(uploadTask.snapshot.ref).then((downloadUrl) => {
-          addDoc(collection(db, `/users/${userID}/students`), {
-            name: `${details.firstName} ${details.lastName}`,
-            id: newUUID,
-            avatar: downloadUrl,
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          const progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          setProgress(progress);
+          switch (snapshot.state) {
+            case "paused":
+              console.log("paused");
+              break;
+            case "running":
+              console.log("running");
+              break;
+            default:
+              break;
+          }
+        },
+        (error) => {
+          console.log(error);
+        },
+        () => {
+          getDownloadURL(uploadTask.snapshot.ref).then((downloadUrl) => {
+            addDoc(collection(db, `/users/${userID}/students`), {
+              name: `${details.firstName} ${details.lastName}`,
+              id: newUUID,
+              avatar: downloadUrl,
+            });
           });
-        });
-        alert("סטודנט נוסף בהצלחה");
-        setTimeout(() => {
-          navigate(`/mystudents`);
-        }, 1000);
-      }
-    );
+          alert("סטודנט נוסף בהצלחה");
+          setTimeout(() => {
+            navigate(`/mystudents`);
+          }, 1000);
+        }
+      );
+    } else {
+      await addDoc(collection(db, `/users/${userID}/students`), {
+        name: `${details.firstName} ${details.lastName}`,
+        id: newUUID,
+        avatar: null,
+      });
+      alert("סטודנט נוסף בהצלחה");
+      setTimeout(() => {
+        navigate(`/mystudents`);
+      }, 1000);
+    }
   };
 
   return (

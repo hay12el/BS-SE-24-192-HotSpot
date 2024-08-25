@@ -23,12 +23,12 @@ function HotspotSettingPhotos({
   canvasRef,
   setHotspot,
   imgRef,
+  setHotspots,
+  Hotspots,
 }) {
-  const [selectedColor, setSelectedColor] = useState("#ffffff");
+  const [selectedColor, setSelectedColor] = useState("red");
   const [name, setName] = useState("");
-  const [hotspotColor, setHotspotColor] = useState("red");
   const recordedChunks = useRef([]);
-  const [squares, setSquares] = useState([]);
   const [squareWidth, setSquareWidth] = useState(3);
   const { currentUser } = useAuth();
   const [dataUri, setDataUri] = useState(null);
@@ -45,11 +45,6 @@ function HotspotSettingPhotos({
 
   const handleColorClick = (color) => {
     setSelectedColor(color);
-  };
-
-  const handleColorChange = (color) => {
-    setSelectedColor(color.hex);
-    setHotspotColor(color.hex);
   };
 
   const handleNameChange = (e) => {
@@ -104,7 +99,7 @@ function HotspotSettingPhotos({
         var userID = currentUser.uid;
         const { photoid, studentid } = params;
         const newUUID = uuidv4();
-        await setDoc(
+        const newHotSpot = await setDoc(
           doc(
             db,
             `/users/${userID}/students/${studentid}/photos/${photoid}/hotspots`,
@@ -120,6 +115,20 @@ function HotspotSettingPhotos({
             id: newUUID,
           }
         );
+
+        setHotspots([
+          ...Hotspots,
+          {
+            color: selectedColor,
+            itemClickCount: 0,
+            success: 0,
+            points: pointsForSub,
+            lineWidth: squareWidth,
+            title: name,
+            id: newUUID,
+          },
+        ]);
+
         alert("הנקודה החמה נוספה בהצלחה");
 
         handleClose();
@@ -129,21 +138,13 @@ function HotspotSettingPhotos({
     }
   };
 
-  const removeLastSquare = () => {
-    if (recordedChunks.current.length >= 0) {
-      recordedChunks.current.pop();
-      const context = canvasRef.current.getContext("2d");
-      redrawSquares(context);
-    }
-  };
-
   const handleClose = () => {
     recordedChunks.current = [];
     setName("");
     setHotspot(false);
     // setCapturedImage(null);
     // setVerticalLines([...verticalLines, (pausedTime / totalTime) * 610]);
-    setSquareWidth(30);
+    setSquareWidth(3);
   };
 
   const hci = async () => {
@@ -157,54 +158,8 @@ function HotspotSettingPhotos({
     setO_DETECTION(true);
   };
 
-  const redrawSquares = (context) => {
-    context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-
-    // handleCaptureImage(capturedImage);
-    context.globalAlpha = 0.3;
-    context.fillStyle = hotspotColor;
-
-    recordedChunks.current.forEach((square) => {
-      context.fillRect(square.x - 15, square.y - 15, squareWidth, squareWidth);
-    });
-  };
-
   const handlePredictClick = (pred) => {
     alert("האם תרצה/י לשמור את האוביקט כנקודה חמה?");
-  };
-
-  const handleCanvasDraw = (event) => {
-    const canvasElement = canvasRef.current;
-    const context = canvasElement.getContext("2d");
-    const rect = canvasElement.getBoundingClientRect();
-
-    const x = Math.floor(
-      ((event.clientX - rect.left) / canvasElement.width) * 100
-    );
-    const y = Math.floor(
-      ((event.clientY - rect.top) / canvasElement.height) * 100
-    );
-    console.log("x: ", x, " y: ", y);
-
-    recordedChunks.current.push({ x: x, y: y, width: squareWidth });
-
-    console.log((x * canvasElement.width) / 100);
-    console.log((y * canvasElement.height) / 100);
-
-    // // Draw the square on the canvas
-    context.globalAlpha = 0.3;
-    context.fillStyle = hotspotColor;
-
-    // squares.forEach((square) => {
-    //   context.fillRect(square.x, square.y, squareWidth, squareWidth);
-    // });
-
-    context.fillRect(
-      (x * canvasElement.width) / 100 - squareWidth / 2,
-      (y * canvasElement.height) / 100 - squareWidth / 2,
-      squareWidth,
-      squareWidth
-    );
   };
 
   const startDrawing = ({ nativeEvent }) => {
@@ -259,8 +214,6 @@ function HotspotSettingPhotos({
     }
   };
 
-
-
   const getCanvasCoordinates = (event) => {
     const canvas = canvasRef.current;
     const rect = canvas.getBoundingClientRect();
@@ -281,7 +234,7 @@ function HotspotSettingPhotos({
   };
 
   return (
-    <div className="HotspotSettingContaner">
+    <div className="bg-white pt-16 rounded-xl relative w-full">
       <span
         onClick={handleClose}
         style={{
@@ -340,7 +293,12 @@ function HotspotSettingPhotos({
         <div className="settingsContainer">
           <label>
             <h4>כותרת:</h4>
-            <input type="text" value={name} onChange={handleNameChange} />
+            <input
+              type="text"
+              className="border-black border-2"
+              value={name}
+              onChange={handleNameChange}
+            />
           </label>
 
           <br />
@@ -386,9 +344,6 @@ function HotspotSettingPhotos({
 
           <br />
           <div className="buttons">
-            <button id="button" onClick={removeLastSquare}>
-              <span class="glyphicon glyphicon-repeat"></span>
-            </button>
             <button
               id="button"
               style={{ color: "#0a7cae", fontWeight: "600" }}
@@ -415,5 +370,5 @@ export default HotspotSettingPhotos;
 const canvasStyle = {
   border: "1px solid #cccccc",
   marginTop: "10px",
-  cursor: "crosshair"
+  cursor: "crosshair",
 };

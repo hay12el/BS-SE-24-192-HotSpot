@@ -1,7 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { collection, deleteDoc, doc, getDoc, getDocs, query, where } from "firebase/firestore";
+import {
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  query,
+  where,
+} from "firebase/firestore";
 import { db } from "../../firebase";
 import HotspotSettingPhotos from "../../components/hotspotSettingPhotos/HotspotSettingPhotos";
 import { clearAllBodyScrollLocks, disableBodyScroll } from "body-scroll-lock";
@@ -55,6 +62,7 @@ function EditPhoto() {
       setHotspots(Hotspots);
       const photo = await getDocs(photoQuery);
       SetImage(photo.docs[0].data());
+      console.log(image);
     } catch (error) {
       console.log(error);
     }
@@ -64,11 +72,11 @@ function EditPhoto() {
       const canvasElement = canvasRef.current;
       const screenWidth = window.screen.width;
 
-      console.log(screenWidth);
+      console.log("handleCaptureImage ", screenWidth);
 
       // setHotspot(true);
       if (screenWidth > 600) {
-        canvasElement.width = screenWidth * (9/10);
+        canvasElement.width = screenWidth * (6 / 11);
         canvasElement.height =
           canvasElement.width * (imgRef.current.height / imgRef.current.width);
       } else {
@@ -126,35 +134,30 @@ function EditPhoto() {
   return (
     <div
       ref={containerRef}
+      className="h-screen w-full pt-24 flex flex-row pr-7 pl-7 relative content-around items-center"
       style={{
-        height: "100vh",
-        width: "100%",
-        paddingTop: "100px",
-        display: "flex",
         direction: "rtl",
-        flexDirection: "row",
-        paddingRight: "30px",
-        paddingLeft: "30px",
-        position: "relative",
-        justifyContent: "space-around"
       }}
     >
-      <div className="backB" style={{top:70, right: 10}}>
+      <div className="backB" style={{ top: 70, right: 10 }}>
         <button id="button" onClick={() => navigate(-1)}>
           חזרה לגלריה <span className="glyphicon glyphicon-arrow-left" />
         </button>
       </div>
       {image && (
-        <div className="videoContainer">
+        <div
+          className="w-full mt-24 flex  items-center content-center"
+          style={{ display: hotspot ? "none" : "flex" }}
+        >
           <div
-            className="videoContainer"
+            className="w-full flex flex-col gap-5 content-center items-center"
             style={{ display: hotspot ? "none" : "flex" }}
           >
             <img
               src={image.fileUri}
               alt=""
               ref={imgRef}
-              style={{ maxHeight: "60vh", maxWidth: "80vw", minWidth: "80vh" }}
+              style={{ maxHeight: "70vh", maxWidth: "70vw" }}
             />
             <div className="buttons">
               <button id="button" onClick={handleCaptureImage}>
@@ -162,42 +165,49 @@ function EditPhoto() {
               </button>
             </div>
           </div>
-          <div style={{ display: !hotspot ? "none" : "flex" }}>
-            <HotspotSettingPhotos
-              capturedImage={image.fileUri}
-              canvasRef={canvasRef}
-              setHotspot={setHotspot}
-              imgRef={imgRef}
-            />
-          </div>
+          {HotSpots && (
+            <table style={{ height: "min-content" }}>
+              <tr>
+                <th style={headerStyle}>זמן הצגת הנקודות</th>
+                <th style={headerStyle}>מחיקת הנקודות החמות</th>
+              </tr>
+              {HotSpots.map((h, key) => {
+                return (
+                  <tr>
+                    <td style={{ cursor: "default" }}>
+                      <h4>{h.title}</h4>
+                    </td>
+                    <td style={{ cursor: "default" }}>
+                      <span
+                        class="glyphicon glyphicon-trash"
+                        onClick={() => deleteHotspot(h.id)}
+                        style={{
+                          color: "red",
+                          cursor: "pointer",
+                        }}
+                      ></span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </table>
+          )}
         </div>
       )}
-      {HotSpots && (
-        <table style={{height:"min-content"}}>
-          <tr>
-            <th style={headerStyle}>זמן הצגת הנקודות</th>
-            <th style={headerStyle}>מחיקת הנקודות החמות</th>
-          </tr>
-          {HotSpots.map((h, key) => {
-            return (
-              <tr>
-                <td style={{ cursor: "default" }}>
-                  <h4>{h.title}</h4>
-                </td>
-                <td style={{ cursor: "default" }}>
-                  <span
-                    class="glyphicon glyphicon-trash"
-                    onClick={() => deleteHotspot(h.id)}
-                    style={{
-                      color: "red",
-                      cursor: "pointer",
-                    }}
-                  ></span>
-                </td>
-              </tr>
-            );
-          })}
-        </table>
+      {image && (
+        <div
+          className="w-full"
+          style={{ display: !hotspot ? "none" : "flex" }}
+        >
+          <HotspotSettingPhotos
+            capturedImage={image.fileUri}
+            canvasRef={canvasRef}
+            setHotspot={setHotspot}
+            imgRef={imgRef}
+            setHotspots={setHotspots}
+            Hotspots={HotSpots}
+          />
+        </div>
       )}
     </div>
   );

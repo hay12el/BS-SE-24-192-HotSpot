@@ -189,24 +189,24 @@ function HotSpotPic({
 
   return (
     <div className="canvaspicker">
-      <span
+      <button
+        type="button"
         onClick={handleClose}
         style={{
           position: "absolute",
-          left: 20,
-          top: 20,
+          left: 10,
+          top: 65,
           color: "#0a7cae",
           cursor: "pointer",
+          width: "40px",
+          height: "40px",
+          fontSize: "32px"
         }}
-        className="glyphicon glyphicon-remove"
-      ></span>
+      >
+        <span className="glyphicon glyphicon-remove"></span>
+      </button>
       <div className="counters">
         <div className="rightCanv">
-          <canvas
-            ref={canvasRef}
-            style={canvasStyle}
-            onMouseDown={handleCanvasTouch}
-          ></canvas>
           <div className="down">
             <button
               id="button"
@@ -283,6 +283,11 @@ function HotSpotPic({
               </div>
             )}
           </div>
+          <canvas
+            ref={canvasRef}
+            style={canvasStyle}
+            onMouseDown={handleCanvasTouch}
+          ></canvas>
         </div>
       </div>
     </div>

@@ -14,6 +14,7 @@ import {
 } from "firebase/firestore";
 import { v4 as uuidv4 } from "uuid";
 import { useNavigate, useParams } from "react-router-dom";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 // import PENCIL from "../../assets/images/pencil.png";
 import { ObjectDetector } from "../objectDetector/index";
 
@@ -27,12 +28,13 @@ function HotspotSetting({
   totalTime,
   setVerticalLines,
   verticalLines,
+  HotSpots,
+  setHotSpotsParent,
+  title,
 }) {
   const [selectedColor, setSelectedColor] = useState("red");
   const [name, setName] = useState("");
-  const [hotspotColor, setHotspotColor] = useState("red");
   const recordedChunks = useRef([]);
-  const [squares, setSquares] = useState([]);
   const [squareWidth, setSquareWidth] = useState(3);
   const { currentUser } = useAuth();
   const params = useParams();
@@ -41,6 +43,7 @@ function HotspotSetting({
   const [hotspots, setHotspots] = useState([]);
   const isDrawing = useRef(false);
   const pointsRef = useRef([]);
+  const [addToPhotos, setAddToPhotos] = useState(false);
   const colors = ["red", "blue", "green", "yellow", "orange", "purple"];
   let startX = 0;
   let startY = 0;
@@ -146,11 +149,90 @@ function HotspotSetting({
             hotspots: hotspots,
           }
         );
+        setHotSpotsParent([
+          ...HotSpots,
+          {
+            timestamp: pausedTime,
+            id: newUUID,
+            hotspots: hotspots,
+          },
+        ]);
+
+        if (addToPhotos) {
+          uploadCapturedImage();
+        }
+
         alert("הנקודה החמה נוספה בהצלחה");
         handleClose(true);
       }
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  const uploadCapturedImage = async () => {
+    try {
+      var userID = currentUser.uid;
+      const { studentid } = params;
+      const canvasElement = canvasRef.current;
+      const context = canvasElement.getContext("2d");
+      context.clearRect(
+        0,
+        0,
+        canvasRef.current.width,
+        canvasRef.current.height
+      );
+      handleCaptureImage(capturedImage);
+
+      const dataURL = canvasElement.toDataURL("image/png");
+
+      const blob = await fetch(dataURL).then((res) => res.blob());
+
+      // Create a reference to the storage location
+      const imageRef = ref(storage, `images/${title} .png`);
+
+      // Upload the Blob
+      const snapshot = await uploadBytes(imageRef, blob);
+
+      // Get the download URL
+      const downloadURL = await getDownloadURL(snapshot.ref);
+
+      const newUUID = uuidv4();
+      await setDoc(
+        doc(db, `/users/${userID}/students/${studentid}/photos`, newUUID),
+        {
+          fileUri: downloadURL,
+          title: title,
+          allClickCount: 0,
+          outsideClickCount: 0,
+          id: newUUID,
+        }
+      );
+
+      // add hotspots
+
+      const batch = [];
+
+      // Reference to the collection
+      const collectionRef = collection(
+        db,
+        `/users/${userID}/students/${studentid}/photos/${newUUID}/hotspots`
+      );
+
+      for (const docData of hotspots) {
+        // Create a promise for each document addition
+        const docRef = doc(collectionRef, docData.id);
+
+        // Create a promise for each document addition
+        const promise = setDoc(docRef, docData);
+        batch.push(promise);
+      }
+
+      // Wait for all documents to be added
+      await Promise.all(batch);
+      alert("התמונה נוספה בהצלחה");
+    } catch (error) {
+      alert("error while uploading the omage: ", error);
     }
   };
 
@@ -223,7 +305,7 @@ function HotspotSetting({
   };
 
   return (
-    <div className="HotspotSettingContaner">
+    <div className="bg-white pt-16 rounded-xl relative">
       <span
         onClick={() => handleClose(false)}
         style={{
@@ -267,15 +349,7 @@ function HotspotSetting({
           alignItems: "center",
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            flexDirection: "column",
-            height: "100%",
-            justifyContent: "space-around",
-          }}
-        >
+        <div className="flex flex-col items-center h-full content-around gap-4">
           <div className="pointsName">
             {hotspots.map((h) => {
               return <div className="hname">{h.title}</div>;
@@ -290,7 +364,6 @@ function HotspotSetting({
             onTouchStart={startDrawing}
             onTouchMove={draw}
             onTouchEnd={autoComplete}
-            // onMouseDown={handleCanvasDraw}
           ></canvas>
           <button id="button" onClick={hundleAddHotspots}>
             הוסף נקודות חמות
@@ -299,32 +372,27 @@ function HotspotSetting({
         <div className="settingsContainer">
           <label>
             <h4>כותרת:</h4>
-            <input type="text" value={name} onChange={handleNameChange} />
+            <input
+              type="text"
+              className="border-black border-2"
+              value={name}
+              onChange={handleNameChange}
+            />
           </label>
 
           <br />
           <label>
             <h4>בחר צבע:</h4>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "flex-start",
-                flexWrap: "wrap",
-              }}
-            >
+            <div className="flex content-start flex-wrap">
               {colors.map((color, index) => (
                 <div
                   key={index}
                   style={{
-                    width: "50px",
-                    height: "50px",
-                    borderRadius: "50%",
                     backgroundColor: color,
-                    margin: "10px",
-                    cursor: "pointer",
                     border:
                       selectedColor === color ? "2px solid black" : "none",
                   }}
+                  className="m-3 h-16 w-16 cursor-pointer rounded-full"
                   onClick={() => handleColorClick(color)}
                 ></div>
               ))}
@@ -342,7 +410,6 @@ function HotspotSetting({
               onChange={(e) => setSquareWidth(e.target.value)}
             />
           </label>
-
           <br />
           <div className="buttons">
             <button
@@ -359,6 +426,18 @@ function HotspotSetting({
             >
               זיהוי אוביקטים
             </button>
+            <div className="flex justify-center">
+              <label className="text-md text-sky-600" htmlFor="addToPhotos">
+                הוסף לתמונות הסטטיות
+              </label>
+              <input
+                type="checkbox"
+                name="AddToPhotos"
+                id="AddToPhotos"
+                defaultChecked={addToPhotos}
+                onChange={() => setAddToPhotos(!addToPhotos)}
+              />
+            </div>
           </div>
         </div>
       </div>

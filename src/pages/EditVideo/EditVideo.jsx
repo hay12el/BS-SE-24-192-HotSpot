@@ -3,9 +3,7 @@ import { useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { collection, getDoc, getDocs, query, where } from "firebase/firestore";
 import { db } from "../../firebase";
-import HotspotSetting from "../../components/hotspotSetting/HotspotSetting";
 import VideoComponent from "../../components/video/VideoComponent";
-import { ref } from "firebase/storage";
 
 function EditVideo() {
   const [video, SetVideo] = useState(null);
@@ -21,7 +19,7 @@ function EditVideo() {
 
   useEffect(() => {
     if (videos != null) {
-      console.log("fetch");
+      console.log("fetch ", videos);
       fetch(videos.videoUri)
         .then((response) => response.blob())
         .then((blob) => {
@@ -50,8 +48,8 @@ function EditVideo() {
 
       // get video's hotspots
       const HotSpotsDocs = await getDocs(HotspotDocRef);
-      const Hotspots = HotSpotsDocs.docs.map(h => h.data())
-      setHotspots(Hotspots)
+      const Hotspots = HotSpotsDocs.docs.map((h) => h.data());
+      setHotspots(Hotspots);
 
       //getVideos
       const photoQuery = query(
@@ -76,7 +74,13 @@ function EditVideo() {
         paddingLeft: "30px",
       }}
     >
-      {video && <VideoComponent videoUrl={video} videoObject={videoObject} hotspots={hotspots}/>}
+      {video && (
+        <VideoComponent
+          videoUrl={video}
+          title={videos.title}
+          hotspots={hotspots}
+        />
+      )}
     </div>
   );
 }

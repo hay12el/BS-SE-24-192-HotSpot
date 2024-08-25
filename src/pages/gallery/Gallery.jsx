@@ -1,20 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { CheckAuth } from "../../hooks/hooks";
 import { useAuth } from "../../context/AuthContext";
 import { db, storage } from "../../firebase";
+import { FaVideo, FaImage } from "react-icons/fa6";
 import "./Gallery.css";
 import {
   collection,
   doc,
-  getDoc,
   getDocs,
-  onSnapshot,
   query,
-  where,
   deleteDoc,
 } from "firebase/firestore";
-import { deleteObject, getDownloadURL, ref } from "firebase/storage";
+import { deleteObject, ref } from "firebase/storage";
 
 function Gallery() {
   const navigate = useNavigate();
@@ -101,13 +99,9 @@ function Gallery() {
   return (
     <div
       style={{
-        width: "100%",
-        paddingTop: "100px",
         direction: "rtl",
-        paddingRight: "30px",
-        paddingLeft: "30px",
       }}
-      className="galleryCont"
+      className="w-full pt-24 pl-7 pr-7 galleryCont flex flex-col gap-11 pb-7"
     >
       <div className="backB">
         <button
@@ -124,9 +118,13 @@ function Gallery() {
           הוסף תמונה או סרטון
         </button>
       </div>
-      <div>
-        <h1>סרטונים</h1>
-
+      <div className="flex flex-col gap-4">
+      <div className="flex flex-row gap-4 items-center content-center">
+          <FaVideo size={20} />
+        <p className="text-4xl">
+          סרטונים
+        </p>
+</div>
         <div className="gallaryContainer">
           {videos.map((v, i) => {
             return (
@@ -177,8 +175,11 @@ function Gallery() {
           })}
         </div>
       </div>
-      <div style={{ paddingBottom: "50px" }}>
-        <h1>תמונות</h1>
+      <div className="flex flex-col gap-7">
+        <div className="flex flex-row gap-4 items-center">
+          <FaImage size={20}/>
+          <p className="text-4xl">תמונות</p>
+        </div>
         <div className="gallaryContainer">
           {photos.map((p, i) => {
             return (

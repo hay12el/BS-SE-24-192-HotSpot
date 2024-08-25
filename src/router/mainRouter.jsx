@@ -1,10 +1,8 @@
-import React, { useEffect } from "react";
-import { Route, Routes, useNavigate } from "react-router-dom";
+import React from "react";
+import { Route, Routes } from "react-router-dom";
 import Home from "../pages/Home/Home";
 import Login from "../pages/login/Login";
 import Singin from "../pages/SignIn/Signin";
-import { AuthProvider } from "../context/AuthContext";
-import { CheckAuth } from "../hooks/hooks";
 import Gallery from "../pages/gallery/Gallery";
 import AddPhoto from "../pages/AddPhoto/AddPhoto";
 import MyStudents from "../pages/MyStudents/MyStudents";
