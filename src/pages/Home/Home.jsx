@@ -23,7 +23,7 @@ function Home() {
         </div>
         <div className="buttons">
           <button id="button" onClick={() => navigate("/myStudents")}>
-            בחר סטודנט
+            בחר משתתף
           </button>
         </div>
       </div>

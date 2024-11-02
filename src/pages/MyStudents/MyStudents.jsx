@@ -43,10 +43,10 @@ function MyStudents() {
       className="galleryCont"
     >
       <div>
-        <h1 style={{ marginBottom: "50px" }}>הסטודנטים שלי</h1>
+        <h1 style={{ marginBottom: "50px" }}>בחירת משתתפים</h1>
         <div className="buttons">
           <button id="button" onClick={() => navigate(`/newstudent`)}>
-            הוספת סטודנט חדש
+            הוספת משתתף חדש
           </button>
         </div>
         <div className="students">

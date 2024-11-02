@@ -69,7 +69,7 @@ function NewStudent() {
               avatar: downloadUrl,
             });
           });
-          alert("סטודנט נוסף בהצלחה");
+          alert("משתתף נוסף בהצלחה");
           setTimeout(() => {
             navigate(`/mystudents`);
           }, 1000);
@@ -81,7 +81,7 @@ function NewStudent() {
         id: newUUID,
         avatar: null,
       });
-      alert("סטודנט נוסף בהצלחה");
+      alert("משתתף נוסף בהצלחה");
       setTimeout(() => {
         navigate(`/mystudents`);
       }, 1000);
@@ -130,7 +130,7 @@ function NewStudent() {
         </li>
         <li>
           <button id="button" onClick={() => submit()}>
-            הוספת סטודנט
+            הוספת משתתף
           </button>
         </li>
       </ul>

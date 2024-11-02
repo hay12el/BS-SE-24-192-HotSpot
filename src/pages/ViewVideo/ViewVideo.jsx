@@ -39,7 +39,6 @@ function ViewVideo() {
       const videoCont = document.querySelector(".videoContainer#vCont");
 
       videoElementWidth.current = videoCont.offsetWidth;
-      console.log("videoElementWidth.current", videoElementWidth.current);
 
       videoElementHeight.current = videoCont.offsetHeight;
       const totalTime = videoRef.current.duration;
@@ -47,6 +46,7 @@ function ViewVideo() {
       setTotalTime(totalTime);
 
       const canvasElement = canvasRef.current;
+
       canvasElement.width = videoElementWidth.current - 60;
       canvasElement.height = videoElementHeight.current - 60;
       const hotspotTime = hotspots.map((h) => Math.round(h.timestamp));
@@ -157,11 +157,6 @@ function ViewVideo() {
 
   const drawVerticalLines = () => {
     if (hotspots && totalTime != 0) {
-      console.log("drawVerticalLines");
-
-      console.log(hotspots);
-      console.log(totalTime);
-
       const lines = hotspots.map((h) => (h.timestamp / totalTime) * 610);
       setVerticalLines(lines);
       console.log("verticalLines: ", verticalLines);
@@ -177,13 +172,9 @@ function ViewVideo() {
           lineCanvasElement.height
         );
 
-        console.log(lineCanvasElement.width, lineCanvasElement.height);
-
         context.beginPath();
         context.strokeStyle = "black";
         context.lineWidth = 2;
-
-        console.log("lines: ", lines);
 
         lines.forEach((x) => {
           context.moveTo(x, 0);

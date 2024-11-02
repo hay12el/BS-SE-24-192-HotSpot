@@ -110,7 +110,7 @@ function Gallery() {
           style={{ direction: "ltr" }}
         >
           <span className="glyphicon glyphicon-arrow-left" /> חזרה לרשימת
-          הסטודנטים
+          המשתתפים
         </button>
       </div>
       <div className="buttons">

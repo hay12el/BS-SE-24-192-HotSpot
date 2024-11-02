@@ -19,6 +19,7 @@ import {
   enableBodyScroll,
   clearAllBodyScrollLocks,
 } from "body-scroll-lock";
+import { calculateOptimalImageSize } from "../../utils/Functions";
 
 function ViewPhoto() {
   const params = useParams();
@@ -37,10 +38,30 @@ function ViewPhoto() {
   const [showLines, setShowLines] = useState(false);
   const [flickering, setFlickering] = useState(false);
 
+  const [isLock, setIsLock] = useState(false);
+  const targetRef = useRef(null);
+
+  const containter = document.getElementById("photoContainerPage");
+  const lockScroll = () => {
+    if (targetRef.current) {
+      if (isLock) {
+        enableBodyScroll(targetRef.current);
+
+        // containter.style.backgroundColor = "black";
+      } else {
+        disableBodyScroll(targetRef.current);
+        // containter.style.backgroundColor = "linear-gradient(wheat, #fbfbfb)";
+      }
+      setIsLock(!isLock);
+    }
+  };
+
   useEffect(() => {
     fetchData();
 
-    return () => {};
+    return () => {
+      clearAllBodyScrollLocks(targetRef.current);
+    };
   }, []);
 
   useEffect(() => {
@@ -51,21 +72,14 @@ function ViewPhoto() {
       img.src = photo.fileUri;
       img.ref = imageRef;
 
-      const screenWidth = window.screen.width;
       var w = window.screen.width;
       var h = window.screen.height;
-      var DPR = window.devicePixelRatio;
-      w = Math.round(DPR * w);
-      h = Math.round(DPR * h);
 
-      if (screenWidth > 600) {
-        console.log("62");
-        canvasElement.width = screenWidth * (3 / 4);
-        canvasElement.height = canvasElement.width * (img.height / img.width);
-      } else {
-        canvasElement.width = screenWidth - 20;
-        canvasElement.height = canvasElement.width * (img.height / img.width);
-      }
+      const sizes = calculateOptimalImageSize(img.width, img.height, w, h, 0.9);
+
+      canvasElement.width = sizes.width;
+      canvasElement.height = sizes.height;
+
       const context = canvasElement.getContext("2d");
       context.drawImage(img, 0, 0, canvasElement.width, canvasElement.height);
     }
@@ -247,11 +261,18 @@ function ViewPhoto() {
   }, [flickering]);
 
   return (
-    <div className="photoContainerPage" style={{ position: "relative" }}>
+    <div
+      className="photoContainerPage"
+      style={{ position: "relative" }}
+      id="photoContainerPage"
+      ref={targetRef}
+    >
       <div className="backB" style={{ top: 100 }}>
-        <button id="button" onClick={() => navigate(-1)}>
-          <span className="glyphicon glyphicon-arrow-left" /> חזרה לגלריה
-        </button>
+        {!isLock && (
+          <button id="button" onClick={() => navigate(-1)}>
+            <span className="glyphicon glyphicon-arrow-left" /> חזרה לגלריה
+          </button>
+        )}
       </div>
       <div className="hotandphoto">
         {photo && (
@@ -261,6 +282,7 @@ function ViewPhoto() {
               display: "flex",
               flexDirection: "column",
               gap: "10px",
+              width: "100%",
             }}
           >
             <canvas
@@ -273,7 +295,11 @@ function ViewPhoto() {
         {hotspots && (
           <div
             className="videoContainercc"
-            style={{ alignItems: "flex-start", direction: "rtl" }}
+            style={{
+              alignItems: "flex-start",
+              direction: "rtl",
+              width: "max-content",
+            }}
           >
             {hotspots.map((h, key) => {
               return (
@@ -283,7 +309,6 @@ function ViewPhoto() {
                   style={{ padding: 0 }}
                   className={selectedOption === key ? "selected" : "hotspotCo"}
                 >
-                  {/* <div className="tobutton"> */}
                   <div
                     className="hotspotCo"
                     style={{
@@ -317,7 +342,6 @@ function ViewPhoto() {
                       שמור תוצאות
                     </button>
                   )}
-                  {/* </div> */}
                 </label>
               );
             })}
@@ -344,6 +368,9 @@ function ViewPhoto() {
               style={{ width: "120px" }}
             >
               {!flickering ? "סימנים מהבהבים" : "הפסק היבהוב"}
+            </button>
+            <button id="button" style={{ width: "120px" }} onClick={lockScroll}>
+              {isLock ? <p>שחרר נעילה</p> : <p>נעל מסך</p>}
             </button>
           </div>
         )}

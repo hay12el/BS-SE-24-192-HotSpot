@@ -27,19 +27,15 @@ const NavBar = () => {
         <div className="buttons">
           {isLogIn ? (
             <>
+              <button className="btn" id="signin" onClick={handleClick}>
+                הרשמת משתמש חדש
+              </button>
               <button className="btn" onClick={logout}>
                 התנתקות
               </button>
             </>
           ) : (
-            <>
-              <button className="btn" id="signin" onClick={handleClick}>
-                הרשמה
-              </button>
-              <button className="btn" id="login" onClick={handleClick}>
-                התחברות
-              </button>
-            </>
+            <></>
           )}
         </div>
       </div>
